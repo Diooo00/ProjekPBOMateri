@@ -13,7 +13,7 @@ import java.util.Random;
  */
 public class ProsesThread extends Thread {
 
-    /** Enum tipe bangun yang bisa dipilih user */
+    /** Enum tetap dipertahankan di sini agar tidak merusak dependensi lain */
     public enum TipeBangun { BELAH_KETUPAT, PRISMA, LIMAS }
 
     /** Callback interface untuk melaporkan progress ke GUI */
@@ -24,53 +24,46 @@ public class ProsesThread extends Thread {
 
     // ==================== ENCAPSULATION ====================
     private final int               threadId;
-    private final int               startIdx;
-    private final int               endIdx;
+    private final List<BangunRuang> daftarBangun; // Polimorfisme: List menggunakan kelas induk
+    private final int               globalOffset; // Untuk penomoran ID baris di tabel
     private final ProgressListener  listener;
     private final List<HasilHitung> hasilList = new ArrayList<>();
-    private final List<TipeBangun>  tipeDiizinkan;
 
-    private final Random random;
-
-    public ProsesThread(int threadId, int startIdx, int endIdx,
-                        List<TipeBangun> tipeDiizinkan, ProgressListener listener) {
-        super("ProsesThread-" + threadId);
-        this.threadId      = threadId;
-        this.startIdx      = startIdx;
-        this.endIdx        = endIdx;
-        this.tipeDiizinkan = tipeDiizinkan;
-        this.listener      = listener;
-        this.random        = new Random(threadId * 12345L);
+    // Constructor baru yang menerima sublist BangunRuang yang sudah di-generate di Main
+    public ProsesThread(int threadId, List<BangunRuang> daftarBangun, int globalOffset, ProgressListener listener) {
+        this.threadId     = threadId;
+        this.daftarBangun = daftarBangun;
+        this.globalOffset = globalOffset;
+        this.listener     = listener;
     }
 
     @Override
     public void run() {
-        long mulai   = System.currentTimeMillis();
-        int  total   = endIdx - startIdx;
-        int  laporan = Math.max(1, total / 100);
-
-        listener.onProgress(threadId, 0, total, "Memulai...");
+        long mulai = System.currentTimeMillis();
+        int total = daftarBangun.size();
 
         for (int i = 0; i < total; i++) {
-            int globalId = startIdx + i;
-
-            // Generate hanya dari tipe yang diizinkan (pilihan user)
-            BangunRuang bangun = generateDariPilihan(globalId);
-
+            // MENGGUNAKAN POLYMORPHISM MURNI DI DALAM THREAD
+            BangunRuang bangun = daftarBangun.get(i);
+            
+            // Thread langsung panggil tanpa peduli tipe asli objeknya
             double lp = bangun.hitungLuasPermukaan();
             double v  = bangun.hitungVolume();
 
-            // Beban CPU agar threading terasa
+            // Simulasi beban komputasi (bawaan dari kode aslimu)
             for (int k = 0; k < 500; k++) Math.sqrt(lp * k + v);
 
+            // Menyimpan hasil hitung ke list
             hasilList.add(new HasilHitung(
-                globalId + 1,
+                globalOffset + i + 1, // ID baris yang kontinu
                 bangun.getNamaBangun(),
                 bangun.getRingkasan(),
                 lp, v,
                 threadId
             ));
 
+            // Laporan progress ke GUI
+            int laporan = Math.max(1, total / 10);
             if ((i + 1) % laporan == 0 || i == total - 1) {
                 listener.onProgress(threadId, i + 1, total,
                     String.format("Thread %d: %d / %d", threadId, i + 1, total));
@@ -80,25 +73,4 @@ public class ProsesThread extends Thread {
         long selesai = System.currentTimeMillis();
         listener.onSelesai(threadId, hasilList, selesai - mulai);
     }
-
-    /**
-     * POLYMORPHISM: return type BangunRuang, tapi tipe aktual
-     * dipilih secara random HANYA dari tipeDiizinkan.
-     */
-    private BangunRuang generateDariPilihan(int seed) {
-        // Pilih tipe random dari daftar yang diizinkan
-        TipeBangun tipe = tipeDiizinkan.get(random.nextInt(tipeDiizinkan.size()));
-
-        double d1 = 5 + random.nextDouble() * 95;
-        double d2 = 5 + random.nextDouble() * 95;
-        double t  = 5 + random.nextDouble() * 95;
-
-        switch (tipe) {
-            case BELAH_KETUPAT: return new BelahKetupat(d1, d2);
-            case PRISMA:        return new PrismaBelahKetupat(d1, d2, t);
-            default:            return new LimasBelahKetupat(d1, d2, t);
-        }
-    }
-
-    public List<HasilHitung> getHasilList() { return hasilList; }
 }

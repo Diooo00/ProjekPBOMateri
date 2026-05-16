@@ -36,7 +36,7 @@ public class MesinHitung extends JFrame {
     private JProgressBar[] pbThread;
     private JLabel[]       lblThread;
 
-    private JTable            tabelHasil;
+    private JTable             tabelHasil;
     private DefaultTableModel modelTabel;
 
     private JLabel lblStatTotal, lblStatBK, lblStatPrisma, lblStatLimas;
@@ -45,7 +45,7 @@ public class MesinHitung extends JFrame {
 
     // State
     private final List<HasilHitung> semuaHasil    = Collections.synchronizedList(new ArrayList<>());
-    private final AtomicInteger     threadSelesai  = new AtomicInteger(0);
+    private final AtomicInteger      threadSelesai  = new AtomicInteger(0);
     private long waktuMulai;
     private int  totalThread;
 
@@ -423,46 +423,76 @@ public class MesinHitung extends JFrame {
         panelProgressThread.revalidate();
         panelProgressThread.repaint();
 
-        // ==================== MULTI-THREADING ====================
+        waktuMulai = System.currentTimeMillis();
+
+        // -------------------------------------------------------------------------
+        // PILAR POLYMORPHISM: Pembuatan Objek dipusatkan di Main Flow (Sesuai Titah Dosen)
+        // -------------------------------------------------------------------------
+        List<BangunRuang> semuaBangun = new ArrayList<>();
+        Random random = new Random();
+
+        for (int i = 0; i < jumlahData; i++) {
+            // Memilih tipe acak dari checkbox yang dicentang oleh user
+            ProsesThread.TipeBangun tipe = tipePilihan.get(random.nextInt(tipePilihan.size()));
+
+            double d1 = 5 + random.nextDouble() * 95;
+            double d2 = 5 + random.nextDouble() * 95;
+            double t  = 5 + random.nextDouble() * 95;
+
+            // Instansiasi objek spesifik dimasukkan ke dalam tipe induk polimorfis (BangunRuang)
+            switch (tipe) {
+                case BELAH_KETUPAT:
+                    semuaBangun.add(new BelahKetupat(d1, d2));
+                    break;
+                case PRISMA:
+                    semuaBangun.add(new PrismaBelahKetupat(d1, d2, t));
+                    break;
+                case LIMAS:
+                    semuaBangun.add(new LimasBelahKetupat(d1, d2, t));
+                    break;
+            }
+        }
+
+        // ==================== CHUNKING & MULTI-THREADING ====================
         int chunkSize = jumlahData / jumlahThread;
-        waktuMulai    = System.currentTimeMillis();
-
-        // Buat list immutable untuk dikirim ke tiap thread
-        final List<ProsesThread.TipeBangun> tipeImmutable =
-            Collections.unmodifiableList(new ArrayList<>(tipePilihan));
-
         ProsesThread[] threads = new ProsesThread[jumlahThread];
+
         for (int i = 0; i < jumlahThread; i++) {
-            int start    = i * chunkSize;
-            int end      = (i == jumlahThread - 1) ? jumlahData : start + chunkSize;
+            int start = i * chunkSize;
+            int end   = (i == jumlahThread - 1) ? jumlahData : start + chunkSize;
             final int tid = i;
 
-            threads[i] = new ProsesThread(i + 1, start, end, tipeImmutable,
-                new ProsesThread.ProgressListener() {
-                    @Override
-                    public void onProgress(int threadId, int selesai, int total, String status) {
-                        SwingUtilities.invokeLater(() -> {
-                            int pct = (int)(selesai * 100.0 / total);
-                            pbThread[tid].setValue(pct);
-                            pbThread[tid].setString(pct + "%");
-                            lblThread[tid].setText(status);
-                            updateProgressTotal();
-                        });
-                    }
-                    @Override
-                    public void onSelesai(int threadId, List<HasilHitung> hasil, long waktuMs) {
-                        semuaHasil.addAll(hasil);
-                        int nSelesai = threadSelesai.incrementAndGet();
-                        SwingUtilities.invokeLater(() -> {
-                            pbThread[tid].setValue(100);
-                            pbThread[tid].setString("Selesai ✓");
-                            lblThread[tid].setText(String.format(
-                                "Thread %d — selesai (%,d ms)", threadId, waktuMs));
-                            if (nSelesai == totalThread) onSemuaSelesai(jumlahData);
-                        });
-                    }
-                });
+            // Memotong daftar objek besar menjadi bagian sublist (chunk) untuk thread terkait
+            List<BangunRuang> subDaftarBangun = semuaBangun.subList(start, end);
+
+            // Membuat thread baru dengan mengirim data objek polimorfis yang sudah jadi
+            threads[i] = new ProsesThread(i + 1, subDaftarBangun, start, new ProsesThread.ProgressListener() {
+                @Override
+                public void onProgress(int threadId, int selesai, int total, String status) {
+                    SwingUtilities.invokeLater(() -> {
+                        int pct = (int)(selesai * 100.0 / total);
+                        pbThread[tid].setValue(pct);
+                        pbThread[tid].setString(pct + "%");
+                        lblThread[tid].setText(status);
+                        updateProgressTotal();
+                    });
+                }
+                @Override
+                public void onSelesai(int threadId, List<HasilHitung> hasil, long waktuMs) {
+                    semuaHasil.addAll(hasil);
+                    int nSelesai = threadSelesai.incrementAndGet();
+                    SwingUtilities.invokeLater(() -> {
+                        pbThread[tid].setValue(100);
+                        pbThread[tid].setString("Selesai ✓");
+                        lblThread[tid].setText(String.format(
+                            "Thread %d — selesai (%,d ms)", threadId, waktuMs));
+                        if (nSelesai == totalThread) onSemuaSelesai(jumlahData);
+                    });
+                }
+            });
         }
+        
+        // Menjalankan semua thread secara paralel
         for (ProsesThread t : threads) t.start();
     }
 
