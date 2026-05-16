@@ -1,22 +1,18 @@
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 /**
- * MULTI-THREADING - Thread yang memproses sebagian (chunk) dari total data.
- *
- * Perubahan: sekarang menerima tipeDiizinkan → hanya generate bangun
- * yang dipilih user (bisa BK saja, Prisma+Limas, atau semua, dll).
- *
- * POLYMORPHISM: generateRandom() tetap return BangunRuang (tipe abstrak),
- * tapi objek aktualnya dipilih dari tipeDiizinkan saja.
+ * MULTI-THREADING - Thread jembatan eksekusi komputasi secara paralel.
+ * * PILAR POLYMORPHISM (Behavioral Overriding):
+ * Thread ini sama sekali tidak tahu bentuk asli objeknya (apakah Prisma atau Limas),
+ * ia murni mengeksekusi method kontraktual dari kelas induk (BangunRuang).
  */
 public class ProsesThread extends Thread {
 
-    /** Enum tetap dipertahankan di sini agar tidak merusak dependensi lain */
+    /** Enum dipertahankan di sini agar menjaga kompatibilitas tipe pilihan */
     public enum TipeBangun { BELAH_KETUPAT, PRISMA, LIMAS }
 
-    /** Callback interface untuk melaporkan progress ke GUI */
+    /** Callback interface untuk melaporkan progress ke GUI (EDT) */
     public interface ProgressListener {
         void onProgress(int threadId, int selesai, int total, String status);
         void onSelesai(int threadId, List<HasilHitung> hasil, long waktuMs);
@@ -24,12 +20,12 @@ public class ProsesThread extends Thread {
 
     // ==================== ENCAPSULATION ====================
     private final int               threadId;
-    private final List<BangunRuang> daftarBangun; // Polimorfisme: List menggunakan kelas induk
-    private final int               globalOffset; // Untuk penomoran ID baris di tabel
+    private final List<BangunRuang> daftarBangun; // Menerima jatah list polimorfis dari Main Flow
+    private final int               globalOffset; // Penanda indeks baris kontinu di tabel
     private final ProgressListener  listener;
     private final List<HasilHitung> hasilList = new ArrayList<>();
 
-    // Constructor baru yang menerima sublist BangunRuang yang sudah di-generate di Main
+    // Constructor menerima potongan data (chunk) yang sudah jadi dari fungsi Main
     public ProsesThread(int threadId, List<BangunRuang> daftarBangun, int globalOffset, ProgressListener listener) {
         this.threadId     = threadId;
         this.daftarBangun = daftarBangun;
@@ -43,26 +39,26 @@ public class ProsesThread extends Thread {
         int total = daftarBangun.size();
 
         for (int i = 0; i < total; i++) {
-            // MENGGUNAKAN POLYMORPHISM MURNI DI DALAM THREAD
+            // EKSEKUSI POLYMORPHISM MURNI DI DALAM RUNTIME THREAD
             BangunRuang bangun = daftarBangun.get(i);
             
-            // Thread langsung panggil tanpa peduli tipe asli objeknya
+            // Mengubah wujud perilaku dinamis sesuai tipe asli objek tanpa manual checking
             double lp = bangun.hitungLuasPermukaan();
             double v  = bangun.hitungVolume();
 
-            // Simulasi beban komputasi (bawaan dari kode aslimu)
+            // Kebijakan simulasi beban komputasi bawaan proyek
             for (int k = 0; k < 500; k++) Math.sqrt(lp * k + v);
 
-            // Menyimpan hasil hitung ke list
+            // Bungkus hasil kalkulasi ke data-class
             hasilList.add(new HasilHitung(
-                globalOffset + i + 1, // ID baris yang kontinu
+                globalOffset + i + 1,
                 bangun.getNamaBangun(),
                 bangun.getRingkasan(),
                 lp, v,
                 threadId
             ));
 
-            // Laporan progress ke GUI
+            // Kirim laporan kemajuan setiap kelipatan 10%
             int laporan = Math.max(1, total / 10);
             if ((i + 1) % laporan == 0 || i == total - 1) {
                 listener.onProgress(threadId, i + 1, total,
