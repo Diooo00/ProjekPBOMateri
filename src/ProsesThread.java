@@ -50,7 +50,7 @@ public class ProsesThread extends Thread {
             for (int k = 0; k < 100; k++) Math.sqrt(lp * k + v);
 
             //Throttling CPU, membiarkan thread beristirahat setiap memproses50 data
-            if (i % 50 == 0) {
+            if (i % 1000 == 0) {
                 try {
                     Thread.sleep(1);
                 }

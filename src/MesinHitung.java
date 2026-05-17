@@ -309,27 +309,66 @@ public class MesinHitung extends JFrame {
 
     // ==================== ENGINE OPERASIONAL ====================
     private void onMulai() {
+        // Kumpulkan tipe yang dicentang
         List<ProsesThread.TipeBangun> tipePilihan = new ArrayList<>();
         if (cbBelahKetupat.isSelected()) tipePilihan.add(ProsesThread.TipeBangun.BELAH_KETUPAT);
         if (cbPrisma.isSelected())       tipePilihan.add(ProsesThread.TipeBangun.PRISMA);
         if (cbLimas.isSelected())        tipePilihan.add(ProsesThread.TipeBangun.LIMAS);
 
+        // 1. VALIDASI CHECKBOX (Jika tidak ada yang dipilih)
         if (tipePilihan.isEmpty()) {
-            lblStatus.setText("⚠ Pilih minimal 1 bangun ruang yang ingin di-generate!");
+            lblStatus.setText("⚠ Validasi Gagal: Pilih minimal 1 jenis bangun ruang!");
             lblStatus.setForeground(C_ERROR);
+            
+            // Warnai teks checkbox menjadi merah sebagai penanda error visual
+            cbBelahKetupat.setForeground(C_ERROR);
+            cbPrisma.setForeground(C_ERROR);
+            cbLimas.setForeground(C_ERROR);
+            
+            // Munculkan popup dialog tegas di tengah layar
+            JOptionPane.showMessageDialog(this, 
+                "Silakan pilih minimal satu jenis bangun ruang yang ingin di-generate!", 
+                "Validasi Gagal", 
+                JOptionPane.WARNING_MESSAGE);
             return;
         }
+        
+        // Kembalikan warna teks checkbox ke warna normal jika lolos validasi
+        cbBelahKetupat.setForeground(C_BK);
+        cbPrisma.setForeground(C_PRIMSA);
+        cbLimas.setForeground(C_LIMAS);
 
+        // 2. VALIDASI JUMLAH DATA (Jika kosong, bernilai 0, atau negatif)
         int jumlahData;
         try {
-            jumlahData = Integer.parseInt(txtJumlahData.getText().trim().replace(",","").replace(".",""));
+            String teksInput = txtJumlahData.getText().trim().replace(",","").replace(".","");
+            jumlahData = Integer.parseInt(teksInput);
+            
+            // Paksa lempar error jika data kurang dari 1 (0 atau negatif)
             if (jumlahData < 1) throw new NumberFormatException();
+            
+            // Kembalikan border kotak input ke kondisi normal jika lolos validasi
+            txtJumlahData.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(180, 200, 220)),
+                BorderFactory.createEmptyBorder(4, 8, 4, 8)));
         } catch (NumberFormatException ex) {
-            lblStatus.setText("⚠ Jumlah data tidak valid! Masukkan angka bulat positif.");
+            // Beri border merah tebal pada kotak input sebagai penanda error visual
+            txtJumlahData.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(C_ERROR, 2),
+                BorderFactory.createEmptyBorder(4, 8, 4, 8)));
+            
+            lblStatus.setText("⚠ Validasi Gagal: Jumlah data harus angka bulat positif (> 0)!");
             lblStatus.setForeground(C_ERROR);
+            
+            // Munculkan popup dialog tegas di tengah layar
+            JOptionPane.showMessageDialog(this, 
+                "Jumlah data tidak valid! Masukkan angka bulat positif lebih besar dari 0 (Tidak boleh 0 atau Kosong).", 
+                "Validasi Gagal", 
+                JOptionPane.ERROR_MESSAGE);
             return;
         }
 
+        // --- PROSES BERLANJUT JIKA SELURUH VALIDASI DI ATAS LOLOS ---
         int jumlahThread = (int) spinJumlahThread.getValue();
         totalThread      = jumlahThread;
 
@@ -374,7 +413,7 @@ public class MesinHitung extends JFrame {
         waktuMulai = System.currentTimeMillis();
 
         // -------------------------------------------------------------------------
-        // PILAR POLYMORPHISM: Proses Instansiasi Objek dipusatkan di Main Flow (Dosen Approve)
+        // PILAR POLYMORPHISM: Proses Instansiasi Objek dipusatkan di Main Flow
         // -------------------------------------------------------------------------
         List<BangunRuang> semuaBangun = new ArrayList<>();
         Random random = new Random();
@@ -442,32 +481,46 @@ public class MesinHitung extends JFrame {
         lblStatus.setText("✓ Sukses memproses seluruh data. Mengisi visual tabel...");
 
         // SwingWorker mencegah GUI Aplikasi Hang/Freeze sewaktu memproses puluhan ribu baris data
-        new SwingWorker<Void, Object[]>() {
+        new SwingWorker<Void, List<Object[]>>() {
             @Override
             protected Void doInBackground() {
                 List<HasilHitung> sorted = new ArrayList<>(semuaHasil);
                 sorted.sort(Comparator.comparingInt(HasilHitung::getId));
+                
+                List<Object[]> batch = new ArrayList<>();
                 for (HasilHitung h : sorted) {
-                    publish(new Object[]{
+                    batch.add(new Object[]{
                         h.getId(), h.getNamaBangun(), h.getParameter(),
                         DF.format(h.getLuasPermukaan()), DF.format(h.getVolume()), h.getThreadId()
                     });
+                    
+                    // OPTIMASI: Kirim data per jatah kelompok 500 baris sekaligus ke kasir EDT
+                    if (batch.size() >= 500) {
+                        publish(new ArrayList<>(batch));
+                        batch.clear();
+                    }
+                }
+                // Kirim sisa data yang belum genap 500
+                if (!batch.isEmpty()) {
+                    publish(batch);
                 }
                 return null;
             }
+            
             @Override
-            protected void process(List<Object[]> chunks) {
-                tabelHasil.setRowSorter(null);
-                
-                for (Object[] row : chunks) {
-                    modelTabel.addRow(row);
+            protected void process(List<List<Object[]>> chunks) {
+                // Gambar ulang tabel per kelompok block data
+                for (List<Object[]> batch : chunks) {
+                    for (Object[] row : batch) {
+                        modelTabel.addRow(row);
+                    }
                 }
                 lblJumlahTampil.setText(String.format("  Menampilkan %,d / %,d baris", modelTabel.getRowCount(), semuaHasil.size()));
             }
+            
             @Override
             protected void done() {
                 hitungDanTampilkanStatistik();
-                // Buka kembali kunci Komponen GUI
                 btnMulai.setEnabled(true); btnReset.setEnabled(true);
                 cbBelahKetupat.setEnabled(true); cbPrisma.setEnabled(true); cbLimas.setEnabled(true);
                 txtJumlahData.setEnabled(true);
