@@ -11,8 +11,12 @@ public class PrismaBelahKetupat extends BangunRuang {
         this.tinggi = tinggi;
     }
 
-    public double getTinggi() { return tinggi; }
-    public BelahKetupat getAlas() { return alas; }
+    public double getTinggi() { 
+        return tinggi; 
+    }
+    public BelahKetupat getAlas() { 
+        return alas; 
+    }
 
     public double hitungLuasSelimut() {
         return 4 * alas.hitungSisi() * tinggi;
@@ -28,6 +32,10 @@ public class PrismaBelahKetupat extends BangunRuang {
         return alas.hitungLuas() * tinggi;
     }
 
-    @Override public String getNamaBangun() { return "Prisma Belah Ketupat"; }
-    @Override public String getRingkasan()  { return String.format("d1=%.1f d2=%.1f t=%.1f", alas.getDiagonal1(), alas.getDiagonal2(), tinggi); }
+    @Override public String getNamaBangun() {
+        return "Prisma Belah Ketupat"; 
+    }
+    @Override public String getRingkasan()  { 
+        return String.format("d1=%.1f d2=%.1f t=%.1f", alas.getDiagonal1(), alas.getDiagonal2(), tinggi); 
+    }
 }

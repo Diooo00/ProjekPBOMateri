@@ -20,10 +20,22 @@ public class HasilHitung {
         this.threadId      = threadId;
     }
 
-    public int    getId()            { return id; }
-    public String getNamaBangun()    { return namaBangun; }
-    public String getParameter()     { return parameter; }
-    public double getLuasPermukaan() { return luasPermukaan; }
-    public double getVolume()        { return volume; }
-    public int    getThreadId()      { return threadId; }
+    public int getId(){ 
+        return id; 
+    }
+    public String getNamaBangun(){
+        return namaBangun; 
+    }
+    public String getParameter(){
+        return parameter; 
+    }
+    public double getLuasPermukaan() { 
+        return luasPermukaan; 
+    }
+    public double getVolume(){
+        return volume; 
+    }
+    public int getThreadId(){ 
+        return threadId; 
+    }
 }

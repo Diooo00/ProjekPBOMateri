@@ -68,7 +68,7 @@ public class MesinHitung extends JFrame {
     public MesinHitung() { initUI(); }
 
     private void initUI() {
-        setTitle("Mesin Hitung — Simulasi Multi-Threading Bangun Ruang");
+        setTitle("Mesin Hitung");
         setSize(1100, 730);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
@@ -87,7 +87,7 @@ public class MesinHitung extends JFrame {
         JLabel judul = new JLabel("Mesin Hitung");
         judul.setFont(new Font("Segoe UI", Font.BOLD, 22));
         judul.setForeground(Color.WHITE);
-        JLabel sub = new JLabel("Generate & hitung bangun geometri secara paralel menggunakan multi-threading");
+        JLabel sub = new JLabel("Generate & hitung bangun geometri menggunakan multi-threading");
         sub.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         sub.setForeground(new Color(189, 220, 248));
         JPanel jp = new JPanel(new GridLayout(2, 1, 0, 2));
@@ -123,7 +123,7 @@ public class MesinHitung extends JFrame {
     }
 
     private JPanel buatKartuPilihBangun() {
-        JPanel k = buatKartu("Pilih Bangun yang Di-generate");
+        JPanel k = buatKartu("Pilih Bangun");
         JLabel info = new JLabel("Pilih minimal 1 bangun:");
         info.setFont(new Font("Segoe UI", Font.PLAIN, 11));
         info.setForeground(new Color(100, 110, 130));
@@ -144,7 +144,8 @@ public class MesinHitung extends JFrame {
     private JCheckBox buatCheckbox(String teks, Color warna, boolean selected) {
         JCheckBox cb = new JCheckBox(teks, selected);
         cb.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        cb.setForeground(warna); cb.setBackground(C_KARTU);
+        cb.setForeground(warna); 
+        cb.setBackground(C_KARTU);
         cb.setAlignmentX(Component.LEFT_ALIGNMENT);
         cb.setFocusPainted(false);
         return cb;
@@ -167,20 +168,22 @@ public class MesinHitung extends JFrame {
         k.add(Box.createVerticalStrut(12));
 
         pbTotal = new JProgressBar(0, 100);
-        pbTotal.setStringPainted(true); pbTotal.setString("Belum dimulai"); pbTotal.setForeground(C_PRIMER);
+        pbTotal.setStringPainted(true); pbTotal.setString("Belum dimulai"); 
+        pbTotal.setForeground(C_PRIMER);
         pbTotal.setMaximumSize(new Dimension(Integer.MAX_VALUE, 22));
         k.add(pbTotal); k.add(Box.createVerticalStrut(10));
 
         JPanel tp = new JPanel(new FlowLayout(FlowLayout.CENTER, 8, 0));
         tp.setOpaque(false);
-        btnMulai = buatTombol("▶  Mulai Proses", C_PRIMER);
-        btnReset = buatTombol("↺  Reset", new Color(149, 165, 166));
+        btnMulai = buatTombol("Mulai Proses", C_PRIMER);
+        btnReset = buatTombol("Reset", new Color(149, 165, 166));
         btnMulai.addActionListener(e -> onMulai());
         btnReset.addActionListener(e -> onReset());
         tp.add(btnMulai); tp.add(btnReset); k.add(tp);
 
         lblWaktu = new JLabel("Waktu: —");
-        lblWaktu.setFont(new Font("Segoe UI", Font.BOLD, 11)); lblWaktu.setForeground(C_WARN);
+        lblWaktu.setFont(new Font("Segoe UI", Font.BOLD, 11)); 
+        lblWaktu.setForeground(C_WARN);
         lblWaktu.setAlignmentX(Component.CENTER_ALIGNMENT);
         k.add(Box.createVerticalStrut(6)); k.add(lblWaktu);
         return k;
@@ -235,14 +238,14 @@ public class MesinHitung extends JFrame {
         };
 
         tabelHasil = new JTable(modelTabel);
-        tabelHasil.setFont(new Font("Consolas", Font.PLAIN, 11)); tabelHasil.setRowHeight(20);
+        tabelHasil.setFont(new Font("Consolas", Font.PLAIN, 11)); tabelHasil.setRowHeight(30);
         tabelHasil.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
         tabelHasil.setFillsViewportHeight(true); tabelHasil.setShowGrid(true);
-        tabelHasil.setGridColor(new Color(220, 230, 240));
+        tabelHasil.setGridColor(new Color(0,0,0));
         tabelHasil.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 11));
-        tabelHasil.getTableHeader().setBackground(C_PRIMER); tabelHasil.getTableHeader().setForeground(Color.WHITE);
+        tabelHasil.getTableHeader().setBackground(C_PRIMER); tabelHasil.getTableHeader();
 
-        int[] lebarKolom = {55, 145, 165, 145, 125, 60};
+        int[] lebarKolom = {40, 200, 200, 130, 120, 50};
         for (int i = 0; i < lebarKolom.length; i++)
             tabelHasil.getColumnModel().getColumn(i).setPreferredWidth(lebarKolom[i]);
 
@@ -270,16 +273,19 @@ public class MesinHitung extends JFrame {
         k.add(sp, BorderLayout.CENTER);
 
         lblJumlahTampil = new JLabel("  Menampilkan 0 baris");
-        lblJumlahTampil.setFont(new Font("Segoe UI", Font.ITALIC, 10)); lblJumlahTampil.setForeground(new Color(120, 130, 145));
+        lblJumlahTampil.setFont(new Font("Segoe UI", Font.ITALIC, 10)); 
+        lblJumlahTampil.setForeground(new Color(120, 130, 145));
         k.add(lblJumlahTampil, BorderLayout.SOUTH);
         return k;
     }
 
     private JPanel buatStatusBar() {
         JPanel s = new JPanel(new FlowLayout(FlowLayout.LEFT, 16, 5));
-        s.setBackground(new Color(236, 240, 241)); s.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(200, 210, 220)));
+        s.setBackground(new Color(236, 240, 241)); 
+        s.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(200, 210, 220)));
         lblStatus = new JLabel("Siap. Pilih bangun, atur jumlah data dan thread, lalu klik Mulai.");
-        lblStatus.setFont(new Font("Segoe UI", Font.PLAIN, 11)); lblStatus.setForeground(new Color(100, 110, 120));
+        lblStatus.setFont(new Font("Segoe UI", Font.PLAIN, 11)); 
+        lblStatus.setForeground(new Color(100, 110, 120));
         s.add(lblStatus);
         return s;
     }
@@ -291,13 +297,17 @@ public class MesinHitung extends JFrame {
         if (cbLimas.isSelected())        tipePilihan.add(ProsesThread.TipeBangun.LIMAS);
 
         if (tipePilihan.isEmpty()) {
-            lblStatus.setText("⚠ Validasi Gagal: Pilih minimal 1 jenis bangun!");
+            lblStatus.setText("Validasi Gagal: Pilih minimal 1 jenis bangun!");
             lblStatus.setForeground(C_ERROR);
-            cbBelahKetupat.setForeground(C_ERROR); cbPrisma.setForeground(C_ERROR); cbLimas.setForeground(C_ERROR);
+            cbBelahKetupat.setForeground(C_ERROR); 
+            cbPrisma.setForeground(C_ERROR); 
+            cbLimas.setForeground(C_ERROR);
             JOptionPane.showMessageDialog(this, "Silakan pilih minimal satu jenis bangun geometri!", "Validasi Gagal", JOptionPane.WARNING_MESSAGE);
             return;
         }
-        cbBelahKetupat.setForeground(C_BK); cbPrisma.setForeground(C_PRIMSA); cbLimas.setForeground(C_LIMAS);
+        cbBelahKetupat.setForeground(C_BK); 
+        cbPrisma.setForeground(C_PRIMSA); 
+        cbLimas.setForeground(C_LIMAS);
 
         int jumlahData;
         try {
@@ -307,7 +317,7 @@ public class MesinHitung extends JFrame {
             txtJumlahData.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(new Color(180, 200, 220)), BorderFactory.createEmptyBorder(4, 8, 4, 8)));
         } catch (NumberFormatException ex) {
             txtJumlahData.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(C_ERROR, 2), BorderFactory.createEmptyBorder(4, 8, 4, 8)));
-            lblStatus.setText("⚠ Validasi Gagal: Jumlah data harus angka bulat positif (> 0)!"); lblStatus.setForeground(C_ERROR);
+            lblStatus.setText("Validasi Gagal: Jumlah data harus angka bulat positif (> 0)!"); lblStatus.setForeground(C_ERROR);
             JOptionPane.showMessageDialog(this, "Jumlah data tidak valid! Masukkan angka bulat positif lebih besar dari 0.", "Validasi Gagal", JOptionPane.ERROR_MESSAGE);
             return;
         }
@@ -315,31 +325,46 @@ public class MesinHitung extends JFrame {
         int jumlahThread = (int) spinJumlahThread.getValue();
         totalThread      = jumlahThread;
 
-        semuaHasil.clear(); threadSelesai.set(0); modelTabel.setRowCount(0); resetStatistik();
+        semuaHasil.clear(); threadSelesai.set(0); 
+        modelTabel.setRowCount(0); 
+        resetStatistik();
 
-        btnMulai.setEnabled(false); btnReset.setEnabled(false);
-        cbBelahKetupat.setEnabled(false); cbPrisma.setEnabled(false); cbLimas.setEnabled(false);
+        btnMulai.setEnabled(false); 
+        btnReset.setEnabled(false);
+        cbBelahKetupat.setEnabled(false); 
+        cbPrisma.setEnabled(false); 
+        cbLimas.setEnabled(false);
         txtJumlahData.setEnabled(false);
 
-        pbTotal.setValue(0); pbTotal.setString("0%");
-        lblWaktu.setText("Waktu: berjalan..."); lblWaktu.setForeground(C_WARN);
+        pbTotal.setValue(0); 
+        pbTotal.setString("0%");
+        lblWaktu.setText("Waktu: berjalan..."); 
+        lblWaktu.setForeground(C_WARN);
         lblStatus.setText("Memproses komputasi massal paralel...");
 
         panelProgressThread.removeAll();
-        pbThread  = new JProgressBar[jumlahThread]; lblThread = new JLabel[jumlahThread];
+        pbThread  = new JProgressBar[jumlahThread]; 
+        lblThread = new JLabel[jumlahThread];
         for (int i = 0; i < jumlahThread; i++) {
             Color warna = WARNA_THREAD[i % WARNA_THREAD.length];
             lblThread[i] = new JLabel(String.format("Thread %d — bersiap...", i + 1));
-            lblThread[i].setFont(new Font("Segoe UI", Font.PLAIN, 10)); lblThread[i].setForeground(warna);
-            pbThread[i] = new JProgressBar(0, 100); pbThread[i].setStringPainted(true); pbThread[i].setForeground(warna);
+            lblThread[i].setFont(new Font("Segoe UI", Font.PLAIN, 10)); 
+            lblThread[i].setForeground(warna);
+            pbThread[i] = new JProgressBar(0, 100); 
+            pbThread[i].setStringPainted(true); 
+            pbThread[i].setForeground(warna);
             pbThread[i].setMaximumSize(new Dimension(Integer.MAX_VALUE, 16));
             
-            JPanel row = new JPanel(); row.setLayout(new BoxLayout(row, BoxLayout.Y_AXIS)); row.setBackground(C_KARTU);
+            JPanel row = new JPanel(); 
+            row.setLayout(new BoxLayout(row, BoxLayout.Y_AXIS)); 
+            row.setBackground(C_KARTU);
             row.setBorder(BorderFactory.createEmptyBorder(3, 6, 3, 6));
-            row.add(lblThread[i]); row.add(Box.createVerticalStrut(2)); row.add(pbThread[i]);
+            row.add(lblThread[i]); row.add(Box.createVerticalStrut(2)); 
+            row.add(pbThread[i]);
             panelProgressThread.add(row);
         }
-        panelProgressThread.revalidate(); panelProgressThread.repaint();
+        panelProgressThread.revalidate(); 
+        panelProgressThread.repaint();
 
         waktuMulai = System.currentTimeMillis();
 
@@ -387,7 +412,7 @@ public class MesinHitung extends JFrame {
                     semuaHasil.addAll(hasil);
                     int nSelesai = threadSelesai.incrementAndGet();
                     SwingUtilities.invokeLater(() -> {
-                        pbThread[tid].setValue(100); pbThread[tid].setString("Selesai ✓");
+                        pbThread[tid].setValue(100); pbThread[tid].setString("Selesai");
                         lblThread[tid].setText(String.format("Thread %d — sukses (%,d ms)", threadId, waktuMs));
                         if (nSelesai == totalThread) onSemuaSelesai();
                     });
@@ -399,9 +424,11 @@ public class MesinHitung extends JFrame {
 
     private void onSemuaSelesai() {
         long totalWaktu = System.currentTimeMillis() - waktuMulai;
-        pbTotal.setValue(100); pbTotal.setString("100% — Selesai!"); pbTotal.setForeground(C_SUKSES);
-        lblWaktu.setText(String.format("Waktu total: %,d ms (%.2f detik)", totalWaktu, totalWaktu / 1000.0)); lblWaktu.setForeground(C_SUKSES);
-        lblStatus.setText("✓ Sukses memproses seluruh data. Mengisi visual tabel...");
+        pbTotal.setValue(100); pbTotal.setString("100% — Selesai!"); 
+        pbTotal.setForeground(C_SUKSES);
+        lblWaktu.setText(String.format("Waktu total: %,d ms (%.2f detik)", totalWaktu, totalWaktu / 1000.0)); 
+        lblWaktu.setForeground(C_SUKSES);
+        lblStatus.setText("Sukses memproses seluruh data. Mengisi visual tabel...");
 
         new SwingWorker<Void, List<Object[]>>() {
             @Override
@@ -413,10 +440,11 @@ public class MesinHitung extends JFrame {
                 for (HasilHitung h : sorted) {
                     batch.add(new Object[]{
                         h.getId(), h.getNamaBangun(), h.getParameter(),
-                        DF.format(h.getLuasPermukaan()), DF.format(h.getVolume()), h.getThreadId()
+                        DF.format( h.getLuasPermukaan()), DF.format(h.getVolume()), h.getThreadId()
                     });
                     if (batch.size() >= 500) {
-                        publish(new ArrayList<>(batch)); batch.clear();
+                        publish(new ArrayList<>(batch)); 
+                        batch.clear();
                     }
                 }
                 if (!batch.isEmpty()) publish(batch);
@@ -432,10 +460,14 @@ public class MesinHitung extends JFrame {
             @Override
             protected void done() {
                 hitungDanTampilkanStatistik();
-                btnMulai.setEnabled(true); btnReset.setEnabled(true);
-                cbBelahKetupat.setEnabled(true); cbPrisma.setEnabled(true); cbLimas.setEnabled(true);
+                btnMulai.setEnabled(true); 
+                btnReset.setEnabled(true);
+                cbBelahKetupat.setEnabled(true); 
+                cbPrisma.setEnabled(true); 
+                cbLimas.setEnabled(true);
                 txtJumlahData.setEnabled(true);
-                lblStatus.setText("Siap."); lblStatus.setForeground(new Color(100, 110, 120));
+                lblStatus.setText("Siap."); 
+                lblStatus.setForeground(new Color(100, 110, 120));
             }
         }.execute();
     }
@@ -471,48 +503,73 @@ public class MesinHitung extends JFrame {
     }
 
     private void onReset() {
-        semuaHasil.clear(); threadSelesai.set(0); modelTabel.setRowCount(0);
+        semuaHasil.clear(); 
+        threadSelesai.set(0); 
+        modelTabel.setRowCount(0);
         lblJumlahTampil.setText("  Menampilkan 0 baris");
-        panelProgressThread.removeAll(); panelProgressThread.revalidate(); panelProgressThread.repaint();
-        pbTotal.setValue(0); pbTotal.setString("Belum dimulai"); pbTotal.setForeground(C_PRIMER);
-        lblWaktu.setText("Waktu: —"); lblWaktu.setForeground(C_WARN);
-        cbBelahKetupat.setEnabled(true); cbBelahKetupat.setSelected(true);
-        cbPrisma.setEnabled(true); cbPrisma.setSelected(true);
-        cbLimas.setEnabled(true); cbLimas.setSelected(true);
-        txtJumlahData.setEnabled(true); resetStatistik();
+        panelProgressThread.removeAll(); 
+        panelProgressThread.revalidate(); 
+        panelProgressThread.repaint();
+        pbTotal.setValue(0); 
+        pbTotal.setString("Belum dimulai"); 
+        pbTotal.setForeground(C_PRIMER);
+        lblWaktu.setText("Waktu: —"); 
+        lblWaktu.setForeground(C_WARN);
+        cbBelahKetupat.setEnabled(true); 
+        cbBelahKetupat.setSelected(true);
+        cbPrisma.setEnabled(true); 
+        cbPrisma.setSelected(true);
+        cbLimas.setEnabled(true); 
+        cbLimas.setSelected(true);
+        txtJumlahData.setEnabled(true); 
+        resetStatistik();
     }
 
     private void resetStatistik() {
-        lblStatTotal.setText("Total data       : —"); lblStatBK.setText("Belah Ketupat    : —");
-        lblStatPrisma.setText("Prisma           : —"); lblStatLimas.setText("Limas            : —");
-        lblStatLPMin.setText("LP Min  : —"); lblStatLPMax.setText("LP Max  : —"); lblStatLPAvg.setText("LP Avg  : —");
-        lblStatVolMin.setText("Vol Min : —"); lblStatVolMax.setText("Vol Max : —"); lblStatVolAvg.setText("Vol Avg : —");
+        lblStatTotal.setText("Total data       : —"); 
+        lblStatBK.setText("Belah Ketupat    : —");
+        lblStatPrisma.setText("Prisma           : —"); 
+        lblStatLimas.setText("Limas            : —");
+        lblStatLPMin.setText("LP Min  : —"); 
+        lblStatLPMax.setText("LP Max  : —"); 
+        lblStatLPAvg.setText("LP Avg  : —");
+        lblStatVolMin.setText("Vol Min : —"); 
+        lblStatVolMax.setText("Vol Max : —"); 
+        lblStatVolAvg.setText("Vol Avg : —");
     }
 
     // ==================== PILAR OVERLOADING ====================
     private JPanel buatBaris(String labelTeks, JTextField field) {
-        JPanel b = new JPanel(new BorderLayout(8, 0)); b.setOpaque(false);
+        JPanel b = new JPanel(new BorderLayout(8, 0)); 
+        b.setOpaque(false);
         b.setMaximumSize(new Dimension(Integer.MAX_VALUE, 32));
         JLabel lbl = new JLabel(labelTeks);
-        lbl.setFont(new Font("Segoe UI", Font.PLAIN, 12)); lbl.setForeground(C_TEKS);
+        lbl.setFont(new Font("Segoe UI", Font.PLAIN, 12)); 
+        lbl.setForeground(C_TEKS);
         lbl.setPreferredSize(new Dimension(120, 26));
-        b.add(lbl, BorderLayout.WEST); b.add(field, BorderLayout.CENTER);
+        b.add(lbl, BorderLayout.WEST); 
+        b.add(field, BorderLayout.CENTER);
         return b;
     }
 
     private JPanel buatBaris(String labelTeks, JSpinner spinner) {
-        JPanel b = new JPanel(new BorderLayout(8, 0)); b.setOpaque(false);
+        JPanel b = new JPanel(new BorderLayout(8, 0)); 
+        b.setOpaque(false);
         b.setMaximumSize(new Dimension(Integer.MAX_VALUE, 32));
         JLabel lbl = new JLabel(labelTeks);
-        lbl.setFont(new Font("Segoe UI", Font.PLAIN, 12)); lbl.setForeground(C_TEKS);
+        lbl.setFont(new Font("Segoe UI", Font.PLAIN, 12)); 
+        lbl.setForeground(C_TEKS);
         lbl.setPreferredSize(new Dimension(120, 26));
         spinner.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-        b.add(lbl, BorderLayout.WEST); b.add(spinner, BorderLayout.CENTER);
+        b.add(lbl, BorderLayout.WEST); 
+        b.add(spinner, BorderLayout.CENTER);
         return b;
     }
 
     private JPanel buatKartu(String judul) {
-        JPanel k = new JPanel(); k.setLayout(new BoxLayout(k, BoxLayout.Y_AXIS)); k.setBackground(C_KARTU);
+        JPanel k = new JPanel(); 
+        k.setLayout(new BoxLayout(k, BoxLayout.Y_AXIS)); 
+        k.setBackground(C_KARTU);
         k.setBorder(BorderFactory.createCompoundBorder(
             BorderFactory.createLineBorder(new Color(220, 230, 240)),
             BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(4, 10, 10, 10), judul, TitledBorder.LEFT, TitledBorder.TOP, new Font("Segoe UI", Font.BOLD, 12), C_PRIMER)
@@ -521,29 +578,37 @@ public class MesinHitung extends JFrame {
     }
 
     private JButton buatTombol(String teks, Color warna) {
-        JButton btn = new JButton(teks); btn.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        btn.setBackground(warna); btn.setForeground(Color.WHITE);
-        btn.setFocusPainted(false); btn.setBorderPainted(false);
+        JButton btn = new JButton(teks); 
+        btn.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        btn.setBackground(warna); 
+        btn.setForeground(Color.WHITE);
+        btn.setFocusPainted(false); 
+        btn.setBorderPainted(false);
         btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         btn.setPreferredSize(new Dimension(130, 34));
         return btn;
     }
 
     private JLabel buatLabelStat(String teks) {
-        JLabel l = new JLabel(teks); l.setFont(new Font("Consolas", Font.PLAIN, 11));
-        l.setForeground(C_TEKS); l.setAlignmentX(Component.LEFT_ALIGNMENT);
+        JLabel l = new JLabel(teks); 
+        l.setFont(new Font("Consolas", Font.PLAIN, 11));
+        l.setForeground(C_TEKS); 
+        l.setAlignmentX(Component.LEFT_ALIGNMENT);
         return l;
     }
 
     private JSeparator buatSeparator() {
-        JSeparator sep = new JSeparator(); sep.setMaximumSize(new Dimension(Integer.MAX_VALUE, 1));
+        JSeparator sep = new JSeparator(); 
+        sep.setMaximumSize(new Dimension(Integer.MAX_VALUE, 1));
         sep.setForeground(new Color(210, 220, 230));
         return sep;
     }
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            try { UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName()); } catch (Exception ignored) {}
+            try { UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName()); 
+            } catch (Exception ignored) {}
+            
             new MesinHitung().setVisible(true);
         });
     }

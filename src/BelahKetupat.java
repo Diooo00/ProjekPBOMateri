@@ -11,18 +11,26 @@ public class BelahKetupat extends BangunDatar {
         this.diagonal2 = diagonal2;
     }
 
-    public double getDiagonal1() { return diagonal1; }
-    public double getDiagonal2() { return diagonal2; }
+    public double getDiagonal1() { 
+        return diagonal1; 
+    }
+    public double getDiagonal2() { 
+        return diagonal2; 
+    }
 
     public double hitungSisi() {
         return Math.sqrt(Math.pow(diagonal1 / 2, 2) + Math.pow(diagonal2 / 2, 2));
     }
-
+    
     @Override
     public double hitungLuas() {
         return (diagonal1 * diagonal2) / 2;
     }
 
-    @Override public String getNamaBangun() { return "Belah Ketupat"; }
-    @Override public String getRingkasan()  { return String.format("d1=%.1f d2=%.1f", diagonal1, diagonal2); }
+    @Override public String getNamaBangun() {
+        return "Belah Ketupat"; 
+    }
+    @Override public String getRingkasan()  { 
+        return String.format("d1=%.1f d2=%.1f", diagonal1, diagonal2); 
+    }
 }
