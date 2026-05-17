@@ -457,7 +457,11 @@ public class MesinHitung extends JFrame {
             }
             @Override
             protected void process(List<Object[]> chunks) {
-                for (Object[] row : chunks) modelTabel.addRow(row);
+                tabelHasil.setRowSorter(null);
+                
+                for (Object[] row : chunks) {
+                    modelTabel.addRow(row);
+                }
                 lblJumlahTampil.setText(String.format("  Menampilkan %,d / %,d baris", modelTabel.getRowCount(), semuaHasil.size()));
             }
             @Override
