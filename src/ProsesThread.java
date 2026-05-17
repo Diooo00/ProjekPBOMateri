@@ -47,7 +47,18 @@ public class ProsesThread extends Thread {
             double v  = bangun.hitungVolume();
 
             // Kebijakan simulasi beban komputasi bawaan proyek
-            for (int k = 0; k < 500; k++) Math.sqrt(lp * k + v);
+            for (int k = 0; k < 100; k++) Math.sqrt(lp * k + v);
+
+            //Throttling CPU, membiarkan thread beristirahat setiap memproses50 data
+            if (i % 50 == 0) {
+                try {
+                    Thread.sleep(1);
+                }
+                catch (InterruptedException e) {
+                    Thread.currentThread().interrupt() ;
+                    break ;
+                }
+            }
 
             // Bungkus hasil kalkulasi ke data-class
             hasilList.add(new HasilHitung(
