@@ -2,7 +2,7 @@
  * ENCAPSULATION + INHERITANCE
  * Bangun dasar belah ketupat.
  */
-public class BelahKetupat extends BangunRuang {
+public class BelahKetupat extends BangunDatar {
     private double diagonal1;
     private double diagonal2;
 
@@ -18,16 +18,11 @@ public class BelahKetupat extends BangunRuang {
         return Math.sqrt(Math.pow(diagonal1 / 2, 2) + Math.pow(diagonal2 / 2, 2));
     }
 
+    @Override
     public double hitungLuas() {
         return (diagonal1 * diagonal2) / 2;
     }
 
-    @Override public double hitungLuasPermukaan() { return hitungLuas(); }
-    @Override public double hitungVolume()         { return 0; }
-    @Override public String getNamaBangun()        { return "Belah Ketupat"; }
-
-    @Override
-    public String getRingkasan() {
-        return String.format("d1=%.1f d2=%.1f", diagonal1, diagonal2);
-    }
+    @Override public String getNamaBangun() { return "Belah Ketupat"; }
+    @Override public String getRingkasan()  { return String.format("d1=%.1f d2=%.1f", diagonal1, diagonal2); }
 }

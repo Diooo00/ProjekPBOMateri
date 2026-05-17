@@ -11,17 +11,16 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * MesinHitung - GUI Utama & Pusat Alur Kendali Kontrol (Main Flow).
  *
- * MEMENUHI LENGKAP 5 PILAR OOP SESUAI DIKTAT DOSEN:
- * - ABSTRACTION         : Menggunakan basis kontrak abstract class 'BangunRuang'.
- * - ENCAPSULATION       : Information hiding lewat modifier 'private' di semua variabel komponen visual.
- * - INHERITANCE         : Pewarisan Taxonomy berjenjang dari BelahKetupat ke Prisma & Limas.
- * - OVERLOADING         : Implementasi compile-time polimorfisme lewat sepasang method 'buatBaris(...)'.
- * - OVERRIDING & POLYM. : Instansiasi ragam bentuk objek konkret ke tipe penampung induk di Main Flow.
- * - MULTI-THREADING     : Manajemen pembagian eksekusi data secara konkuren/paralel.
+ * TAKSONOMI ARSITEKTUR KODE FINAL & ZERO RISK AKADEMIS:
+ * - ABSTRACTION         : Menggunakan basis kelas abstrak puncak 'BangunGeometri'.
+ * - ENCAPSULATION       : Information hiding lewat modifier 'private' di seluruh komponen visual.
+ * - INHERITANCE         : Hubungan Gen-Spec yang logis (BelahKetupat IS-A BangunDatar; Prisma/Limas IS-A BangunRuang).
+ * - COMPOSITION         : Hubungan Whole-Part murni (Prisma/Limas HAS-A BelahKetupat).
+ * - OVERLOADING         : Polimorfisme compile-time lewat sepasang method 'buatBaris(...)'.
+ * - MULTI-THREADING     : Manajemen pembagian jatah chunk data paralel & optimasi Batching JTable.
  */
 public class MesinHitung extends JFrame {
 
-    // ==================== ENCAPSULATION ====================
     private JCheckBox     cbBelahKetupat, cbPrisma, cbLimas;
     private JTextField    txtJumlahData;
     private JSpinner      spinJumlahThread;
@@ -40,13 +39,11 @@ public class MesinHitung extends JFrame {
     private JLabel lblStatLPMin, lblStatLPMax, lblStatLPAvg;
     private JLabel lblStatVolMin, lblStatVolMax, lblStatVolAvg;
 
-    // Thread-safe state control
     private final List<HasilHitung> semuaHasil    = Collections.synchronizedList(new ArrayList<>());
     private final AtomicInteger      threadSelesai  = new AtomicInteger(0);
     private long waktuMulai;
     private int  totalThread;
 
-    // Palette Warna Desain Modern
     private static final Color C_PRIMER = new Color(41, 128, 185);
     private static final Color C_SUKSES = new Color(39, 174, 96);
     private static final Color C_WARN   = new Color(230, 126, 34);
@@ -83,7 +80,6 @@ public class MesinHitung extends JFrame {
         add(buatStatusBar(),   BorderLayout.SOUTH);
     }
 
-    // ==================== HEADER PANEL ====================
     private JPanel buatHeader() {
         JPanel h = new JPanel(new BorderLayout());
         h.setBackground(C_PRIMER);
@@ -91,7 +87,7 @@ public class MesinHitung extends JFrame {
         JLabel judul = new JLabel("Mesin Hitung");
         judul.setFont(new Font("Segoe UI", Font.BOLD, 22));
         judul.setForeground(Color.WHITE);
-        JLabel sub = new JLabel("Generate & hitung bangun ruang secara paralel menggunakan multi-threading");
+        JLabel sub = new JLabel("Generate & hitung bangun geometri secara paralel menggunakan multi-threading");
         sub.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         sub.setForeground(new Color(189, 220, 248));
         JPanel jp = new JPanel(new GridLayout(2, 1, 0, 2));
@@ -100,7 +96,6 @@ public class MesinHitung extends JFrame {
         return h;
     }
 
-    // ==================== PANEL TENGAH ====================
     private JPanel buatPanelTengah() {
         JPanel p = new JPanel(new BorderLayout(10, 10));
         p.setBackground(C_BG);
@@ -140,10 +135,8 @@ public class MesinHitung extends JFrame {
         cbPrisma       = buatCheckbox("Prisma",        C_PRIMSA, true);
         cbLimas        = buatCheckbox("Limas",         C_LIMAS,  true);
 
-        k.add(cbBelahKetupat);
-        k.add(Box.createVerticalStrut(4));
-        k.add(cbPrisma);
-        k.add(Box.createVerticalStrut(4));
+        k.add(cbBelahKetupat); k.add(Box.createVerticalStrut(4));
+        k.add(cbPrisma);       k.add(Box.createVerticalStrut(4));
         k.add(cbLimas);
         return k;
     }
@@ -151,17 +144,14 @@ public class MesinHitung extends JFrame {
     private JCheckBox buatCheckbox(String teks, Color warna, boolean selected) {
         JCheckBox cb = new JCheckBox(teks, selected);
         cb.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        cb.setForeground(warna);
-        cb.setBackground(C_KARTU);
+        cb.setForeground(warna); cb.setBackground(C_KARTU);
         cb.setAlignmentX(Component.LEFT_ALIGNMENT);
         cb.setFocusPainted(false);
         return cb;
     }
 
-    // ==================== KARTU KONTROL PROSES ====================
     private JPanel buatKartuKontrol() {
         JPanel k = buatKartu("Konfigurasi Proses");
-
         txtJumlahData = new JTextField("10000");
         txtJumlahData.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         txtJumlahData.setBorder(BorderFactory.createCompoundBorder(
@@ -169,7 +159,6 @@ public class MesinHitung extends JFrame {
             BorderFactory.createEmptyBorder(4, 8, 4, 8)
         ));
         
-        // MEMANGGIL METHOD OVERLOADING (buatBaris)
         k.add(buatBaris("Jumlah Data:", txtJumlahData));
         k.add(Box.createVerticalStrut(7));
 
@@ -178,12 +167,9 @@ public class MesinHitung extends JFrame {
         k.add(Box.createVerticalStrut(12));
 
         pbTotal = new JProgressBar(0, 100);
-        pbTotal.setStringPainted(true);
-        pbTotal.setString("Belum dimulai");
-        pbTotal.setForeground(C_PRIMER);
+        pbTotal.setStringPainted(true); pbTotal.setString("Belum dimulai"); pbTotal.setForeground(C_PRIMER);
         pbTotal.setMaximumSize(new Dimension(Integer.MAX_VALUE, 22));
-        k.add(pbTotal);
-        k.add(Box.createVerticalStrut(10));
+        k.add(pbTotal); k.add(Box.createVerticalStrut(10));
 
         JPanel tp = new JPanel(new FlowLayout(FlowLayout.CENTER, 8, 0));
         tp.setOpaque(false);
@@ -191,15 +177,12 @@ public class MesinHitung extends JFrame {
         btnReset = buatTombol("↺  Reset", new Color(149, 165, 166));
         btnMulai.addActionListener(e -> onMulai());
         btnReset.addActionListener(e -> onReset());
-        tp.add(btnMulai); tp.add(btnReset);
-        k.add(tp);
+        tp.add(btnMulai); tp.add(btnReset); k.add(tp);
 
         lblWaktu = new JLabel("Waktu: —");
-        lblWaktu.setFont(new Font("Segoe UI", Font.BOLD, 11));
-        lblWaktu.setForeground(C_WARN);
+        lblWaktu.setFont(new Font("Segoe UI", Font.BOLD, 11)); lblWaktu.setForeground(C_WARN);
         lblWaktu.setAlignmentX(Component.CENTER_ALIGNMENT);
-        k.add(Box.createVerticalStrut(6));
-        k.add(lblWaktu);
+        k.add(Box.createVerticalStrut(6)); k.add(lblWaktu);
         return k;
     }
 
@@ -246,21 +229,18 @@ public class MesinHitung extends JFrame {
         JPanel k = buatKartu("Hasil Generate & Perhitungan");
         k.setLayout(new BorderLayout());
 
-        String[] kolom = {"No", "Bangun Ruang", "Parameter", "Luas Permukaan (cm²)", "Volume (cm³)", "Thread"};
+        String[] kolom = {"No", "Bangun Geometri", "Parameter", "Luas / LP (cm²)", "Volume (cm³)", "Thread"};
         modelTabel = new DefaultTableModel(kolom, 0) {
             @Override public boolean isCellEditable(int r, int c) { return false; }
         };
 
         tabelHasil = new JTable(modelTabel);
-        tabelHasil.setFont(new Font("Consolas", Font.PLAIN, 11));
-        tabelHasil.setRowHeight(20);
+        tabelHasil.setFont(new Font("Consolas", Font.PLAIN, 11)); tabelHasil.setRowHeight(20);
         tabelHasil.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
-        tabelHasil.setFillsViewportHeight(true);
-        tabelHasil.setShowGrid(true);
+        tabelHasil.setFillsViewportHeight(true); tabelHasil.setShowGrid(true);
         tabelHasil.setGridColor(new Color(220, 230, 240));
         tabelHasil.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 11));
-        tabelHasil.getTableHeader().setBackground(C_PRIMER);
-        tabelHasil.getTableHeader().setForeground(Color.WHITE);
+        tabelHasil.getTableHeader().setBackground(C_PRIMER); tabelHasil.getTableHeader().setForeground(Color.WHITE);
 
         int[] lebarKolom = {55, 145, 165, 145, 125, 60};
         for (int i = 0; i < lebarKolom.length; i++)
@@ -290,95 +270,53 @@ public class MesinHitung extends JFrame {
         k.add(sp, BorderLayout.CENTER);
 
         lblJumlahTampil = new JLabel("  Menampilkan 0 baris");
-        lblJumlahTampil.setFont(new Font("Segoe UI", Font.ITALIC, 10));
-        lblJumlahTampil.setForeground(new Color(120, 130, 145));
+        lblJumlahTampil.setFont(new Font("Segoe UI", Font.ITALIC, 10)); lblJumlahTampil.setForeground(new Color(120, 130, 145));
         k.add(lblJumlahTampil, BorderLayout.SOUTH);
         return k;
     }
 
     private JPanel buatStatusBar() {
         JPanel s = new JPanel(new FlowLayout(FlowLayout.LEFT, 16, 5));
-        s.setBackground(new Color(236, 240, 241));
-        s.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(200, 210, 220)));
+        s.setBackground(new Color(236, 240, 241)); s.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(200, 210, 220)));
         lblStatus = new JLabel("Siap. Pilih bangun, atur jumlah data dan thread, lalu klik Mulai.");
-        lblStatus.setFont(new Font("Segoe UI", Font.PLAIN, 11));
-        lblStatus.setForeground(new Color(100, 110, 120));
+        lblStatus.setFont(new Font("Segoe UI", Font.PLAIN, 11)); lblStatus.setForeground(new Color(100, 110, 120));
         s.add(lblStatus);
         return s;
     }
 
-    // ==================== ENGINE OPERASIONAL ====================
     private void onMulai() {
-        // Kumpulkan tipe yang dicentang
         List<ProsesThread.TipeBangun> tipePilihan = new ArrayList<>();
         if (cbBelahKetupat.isSelected()) tipePilihan.add(ProsesThread.TipeBangun.BELAH_KETUPAT);
         if (cbPrisma.isSelected())       tipePilihan.add(ProsesThread.TipeBangun.PRISMA);
         if (cbLimas.isSelected())        tipePilihan.add(ProsesThread.TipeBangun.LIMAS);
 
-        // 1. VALIDASI CHECKBOX (Jika tidak ada yang dipilih)
         if (tipePilihan.isEmpty()) {
-            lblStatus.setText("⚠ Validasi Gagal: Pilih minimal 1 jenis bangun ruang!");
+            lblStatus.setText("⚠ Validasi Gagal: Pilih minimal 1 jenis bangun!");
             lblStatus.setForeground(C_ERROR);
-            
-            // Warnai teks checkbox menjadi merah sebagai penanda error visual
-            cbBelahKetupat.setForeground(C_ERROR);
-            cbPrisma.setForeground(C_ERROR);
-            cbLimas.setForeground(C_ERROR);
-            
-            // Munculkan popup dialog tegas di tengah layar
-            JOptionPane.showMessageDialog(this, 
-                "Silakan pilih minimal satu jenis bangun ruang yang ingin di-generate!", 
-                "Validasi Gagal", 
-                JOptionPane.WARNING_MESSAGE);
+            cbBelahKetupat.setForeground(C_ERROR); cbPrisma.setForeground(C_ERROR); cbLimas.setForeground(C_ERROR);
+            JOptionPane.showMessageDialog(this, "Silakan pilih minimal satu jenis bangun geometri!", "Validasi Gagal", JOptionPane.WARNING_MESSAGE);
             return;
         }
-        
-        // Kembalikan warna teks checkbox ke warna normal jika lolos validasi
-        cbBelahKetupat.setForeground(C_BK);
-        cbPrisma.setForeground(C_PRIMSA);
-        cbLimas.setForeground(C_LIMAS);
+        cbBelahKetupat.setForeground(C_BK); cbPrisma.setForeground(C_PRIMSA); cbLimas.setForeground(C_LIMAS);
 
-        // 2. VALIDASI JUMLAH DATA (Jika kosong, bernilai 0, atau negatif)
         int jumlahData;
         try {
             String teksInput = txtJumlahData.getText().trim().replace(",","").replace(".","");
             jumlahData = Integer.parseInt(teksInput);
-            
-            // Paksa lempar error jika data kurang dari 1 (0 atau negatif)
             if (jumlahData < 1) throw new NumberFormatException();
-            
-            // Kembalikan border kotak input ke kondisi normal jika lolos validasi
-            txtJumlahData.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(180, 200, 220)),
-                BorderFactory.createEmptyBorder(4, 8, 4, 8)));
+            txtJumlahData.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(new Color(180, 200, 220)), BorderFactory.createEmptyBorder(4, 8, 4, 8)));
         } catch (NumberFormatException ex) {
-            // Beri border merah tebal pada kotak input sebagai penanda error visual
-            txtJumlahData.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(C_ERROR, 2),
-                BorderFactory.createEmptyBorder(4, 8, 4, 8)));
-            
-            lblStatus.setText("⚠ Validasi Gagal: Jumlah data harus angka bulat positif (> 0)!");
-            lblStatus.setForeground(C_ERROR);
-            
-            // Munculkan popup dialog tegas di tengah layar
-            JOptionPane.showMessageDialog(this, 
-                "Jumlah data tidak valid! Masukkan angka bulat positif lebih besar dari 0 (Tidak boleh 0 atau Kosong).", 
-                "Validasi Gagal", 
-                JOptionPane.ERROR_MESSAGE);
+            txtJumlahData.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(C_ERROR, 2), BorderFactory.createEmptyBorder(4, 8, 4, 8)));
+            lblStatus.setText("⚠ Validasi Gagal: Jumlah data harus angka bulat positif (> 0)!"); lblStatus.setForeground(C_ERROR);
+            JOptionPane.showMessageDialog(this, "Jumlah data tidak valid! Masukkan angka bulat positif lebih besar dari 0.", "Validasi Gagal", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        // --- PROSES BERLANJUT JIKA SELURUH VALIDASI DI ATAS LOLOS ---
         int jumlahThread = (int) spinJumlahThread.getValue();
         totalThread      = jumlahThread;
 
-        // Reset App State sebelum proses
-        semuaHasil.clear();
-        threadSelesai.set(0);
-        modelTabel.setRowCount(0);
-        resetStatistik();
+        semuaHasil.clear(); threadSelesai.set(0); modelTabel.setRowCount(0); resetStatistik();
 
-        // Lock Komponen GUI
         btnMulai.setEnabled(false); btnReset.setEnabled(false);
         cbBelahKetupat.setEnabled(false); cbPrisma.setEnabled(false); cbLimas.setEnabled(false);
         txtJumlahData.setEnabled(false);
@@ -387,23 +325,16 @@ public class MesinHitung extends JFrame {
         lblWaktu.setText("Waktu: berjalan..."); lblWaktu.setForeground(C_WARN);
         lblStatus.setText("Memproses komputasi massal paralel...");
 
-        // Setup Panel Progress JProgressBar komponen Thread latar belakang
         panelProgressThread.removeAll();
-        pbThread  = new JProgressBar[jumlahThread];
-        lblThread = new JLabel[jumlahThread];
+        pbThread  = new JProgressBar[jumlahThread]; lblThread = new JLabel[jumlahThread];
         for (int i = 0; i < jumlahThread; i++) {
             Color warna = WARNA_THREAD[i % WARNA_THREAD.length];
             lblThread[i] = new JLabel(String.format("Thread %d — bersiap...", i + 1));
-            lblThread[i].setFont(new Font("Segoe UI", Font.PLAIN, 10));
-            lblThread[i].setForeground(warna);
-            pbThread[i] = new JProgressBar(0, 100);
-            pbThread[i].setStringPainted(true);
-            pbThread[i].setForeground(warna);
+            lblThread[i].setFont(new Font("Segoe UI", Font.PLAIN, 10)); lblThread[i].setForeground(warna);
+            pbThread[i] = new JProgressBar(0, 100); pbThread[i].setStringPainted(true); pbThread[i].setForeground(warna);
             pbThread[i].setMaximumSize(new Dimension(Integer.MAX_VALUE, 16));
             
-            JPanel row = new JPanel();
-            row.setLayout(new BoxLayout(row, BoxLayout.Y_AXIS));
-            row.setBackground(C_KARTU);
+            JPanel row = new JPanel(); row.setLayout(new BoxLayout(row, BoxLayout.Y_AXIS)); row.setBackground(C_KARTU);
             row.setBorder(BorderFactory.createEmptyBorder(3, 6, 3, 6));
             row.add(lblThread[i]); row.add(Box.createVerticalStrut(2)); row.add(pbThread[i]);
             panelProgressThread.add(row);
@@ -413,9 +344,9 @@ public class MesinHitung extends JFrame {
         waktuMulai = System.currentTimeMillis();
 
         // -------------------------------------------------------------------------
-        // PILAR POLYMORPHISM: Proses Instansiasi Objek dipusatkan di Main Flow
+        // PILAR POLYMORPHISM: Menggunakan wadah Superclass Absolut 'BangunGeometri'
         // -------------------------------------------------------------------------
-        List<BangunRuang> semuaBangun = new ArrayList<>();
+        List<BangunGeometri> semuaBangun = new ArrayList<>();
         Random random = new Random();
 
         for (int i = 0; i < jumlahData; i++) {
@@ -424,7 +355,6 @@ public class MesinHitung extends JFrame {
             double d2 = 5 + random.nextDouble() * 95;
             double t  = 5 + random.nextDouble() * 95;
 
-            // Objek tipe konkret masuk ke kontainer penampung bertipe induk abstrak
             switch (tipe) {
                 case BELAH_KETUPAT: semuaBangun.add(new BelahKetupat(d1, d2)); break;
                 case PRISMA:        semuaBangun.add(new PrismaBelahKetupat(d1, d2, t)); break;
@@ -432,7 +362,7 @@ public class MesinHitung extends JFrame {
             }
         }
 
-        // ==================== MULTI-THREADING CHUNKING EXECUTION ====================
+        // ==================== CHUNKING MULTI-THREADING ====================
         int chunkSize = jumlahData / jumlahThread;
         ProsesThread[] threads = new ProsesThread[jumlahThread];
 
@@ -441,19 +371,15 @@ public class MesinHitung extends JFrame {
             int end   = (i == jumlahThread - 1) ? jumlahData : start + chunkSize;
             final int tid = i;
 
-            // Memotong List polimorfis besar menjadi sublist kecil khusus untuk tiap thread (Chunk)
-            List<BangunRuang> subListJatahThread = semuaBangun.subList(start, end);
+            List<BangunGeometri> subListJatahThread = semuaBangun.subList(start, end);
 
-            // Inisiasi Anonymous Inner Class untuk menghandle callback update progress
             threads[i] = new ProsesThread(i + 1, subListJatahThread, start, new ProsesThread.ProgressListener() {
                 @Override
                 public void onProgress(int threadId, int selesai, int total, String status) {
                     SwingUtilities.invokeLater(() -> {
                         int pct = (int)(selesai * 100.0 / total);
-                        pbThread[tid].setValue(pct);
-                        pbThread[tid].setString(pct + "%");
-                        lblThread[tid].setText(status);
-                        updateProgressTotal();
+                        pbThread[tid].setValue(pct); pbThread[tid].setString(pct + "%");
+                        lblThread[tid].setText(status); updateProgressTotal();
                     });
                 }
                 @Override
@@ -468,19 +394,15 @@ public class MesinHitung extends JFrame {
                 }
             });
         }
-        
-        // Picu pilar Multithreading untuk bekerja secara simultan
         for (ProsesThread t : threads) t.start();
     }
 
     private void onSemuaSelesai() {
         long totalWaktu = System.currentTimeMillis() - waktuMulai;
         pbTotal.setValue(100); pbTotal.setString("100% — Selesai!"); pbTotal.setForeground(C_SUKSES);
-        lblWaktu.setText(String.format("Waktu total: %,d ms (%.2f detik)", totalWaktu, totalWaktu / 1000.0));
-        lblWaktu.setForeground(C_SUKSES);
+        lblWaktu.setText(String.format("Waktu total: %,d ms (%.2f detik)", totalWaktu, totalWaktu / 1000.0)); lblWaktu.setForeground(C_SUKSES);
         lblStatus.setText("✓ Sukses memproses seluruh data. Mengisi visual tabel...");
 
-        // SwingWorker mencegah GUI Aplikasi Hang/Freeze sewaktu memproses puluhan ribu baris data
         new SwingWorker<Void, List<Object[]>>() {
             @Override
             protected Void doInBackground() {
@@ -493,31 +415,20 @@ public class MesinHitung extends JFrame {
                         h.getId(), h.getNamaBangun(), h.getParameter(),
                         DF.format(h.getLuasPermukaan()), DF.format(h.getVolume()), h.getThreadId()
                     });
-                    
-                    // OPTIMASI: Kirim data per jatah kelompok 500 baris sekaligus ke kasir EDT
                     if (batch.size() >= 500) {
-                        publish(new ArrayList<>(batch));
-                        batch.clear();
+                        publish(new ArrayList<>(batch)); batch.clear();
                     }
                 }
-                // Kirim sisa data yang belum genap 500
-                if (!batch.isEmpty()) {
-                    publish(batch);
-                }
+                if (!batch.isEmpty()) publish(batch);
                 return null;
             }
-            
             @Override
             protected void process(List<List<Object[]>> chunks) {
-                // Gambar ulang tabel per kelompok block data
                 for (List<Object[]> batch : chunks) {
-                    for (Object[] row : batch) {
-                        modelTabel.addRow(row);
-                    }
+                    for (Object[] row : batch) modelTabel.addRow(row);
                 }
                 lblJumlahTampil.setText(String.format("  Menampilkan %,d / %,d baris", modelTabel.getRowCount(), semuaHasil.size()));
             }
-            
             @Override
             protected void done() {
                 hitungDanTampilkanStatistik();
@@ -578,8 +489,7 @@ public class MesinHitung extends JFrame {
         lblStatVolMin.setText("Vol Min : —"); lblStatVolMax.setText("Vol Max : —"); lblStatVolAvg.setText("Vol Avg : —");
     }
 
-    // ==================== PILAR OVERLOADING (POLIMORFISME COMPILE-TIME) ====================
-    // Metode 1: Menerima Parameter bertipe JTextField
+    // ==================== PILAR OVERLOADING ====================
     private JPanel buatBaris(String labelTeks, JTextField field) {
         JPanel b = new JPanel(new BorderLayout(8, 0)); b.setOpaque(false);
         b.setMaximumSize(new Dimension(Integer.MAX_VALUE, 32));
@@ -590,7 +500,6 @@ public class MesinHitung extends JFrame {
         return b;
     }
 
-    // Metode 2: Nama SAMA, namun tanda tangan tipe parameter BERBEDA (JSpinner)
     private JPanel buatBaris(String labelTeks, JSpinner spinner) {
         JPanel b = new JPanel(new BorderLayout(8, 0)); b.setOpaque(false);
         b.setMaximumSize(new Dimension(Integer.MAX_VALUE, 32));
@@ -602,10 +511,8 @@ public class MesinHitung extends JFrame {
         return b;
     }
 
-    // ==================== HELPER UI LAINNYA ====================
     private JPanel buatKartu(String judul) {
-        JPanel k = new JPanel(); k.setLayout(new BoxLayout(k, BoxLayout.Y_AXIS));
-        k.setBackground(C_KARTU);
+        JPanel k = new JPanel(); k.setLayout(new BoxLayout(k, BoxLayout.Y_AXIS)); k.setBackground(C_KARTU);
         k.setBorder(BorderFactory.createCompoundBorder(
             BorderFactory.createLineBorder(new Color(220, 230, 240)),
             BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(4, 10, 10, 10), judul, TitledBorder.LEFT, TitledBorder.TOP, new Font("Segoe UI", Font.BOLD, 12), C_PRIMER)
