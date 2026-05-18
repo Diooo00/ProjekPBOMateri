@@ -27,6 +27,11 @@ public class BelahKetupat extends BangunDatar {
         return (diagonal1 * diagonal2) / 2;
     }
 
+    @Override
+    public double hitungKeliling() {
+        return 4 * hitungSisi(); // <-- Implementasi perhitungan keliling
+    }
+
     @Override public String getNamaBangun() {
         return "Belah Ketupat"; 
     }

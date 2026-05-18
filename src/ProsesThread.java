@@ -30,11 +30,22 @@ public class ProsesThread extends Thread {
         int total = daftarBangun.size();
 
         for (int i = 0; i < total; i++) {
-            BangunGeometri bangun = daftarBangun.get(i); // Pemanggilan runtime polimorfisme murni
+            BangunGeometri bangun = daftarBangun.get(i); 
             
-            double lp = bangun.hitungLuasPermukaan();
-            double v  = bangun.hitungVolume();
+            double lp = 0.0;
+            double v  = 0.0;
 
+            // Pengecekan tipe dinamis yang aman dan benar secara OOP murni
+            if (bangun instanceof BangunRuang) {
+                BangunRuang br = (BangunRuang) bangun;
+                lp = br.hitungLuasPermukaan();
+                v  = br.hitungVolume();
+            } else if (bangun instanceof BangunDatar) {
+                BangunDatar bd = (BangunDatar) bangun;
+                lp = bd.hitungLuas();     // Luas bangun datar
+                v  = 0.0;                 // Bangun datar tidak punya volume
+            }
+                
             // Kebijakan simulasi beban komputasi bawaan proyek
             for (int k = 0; k < 100; k++) Math.sqrt(lp * k + v);
 

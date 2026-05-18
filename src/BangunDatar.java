@@ -8,17 +8,6 @@
  * @author user
  */
 public abstract class BangunDatar extends BangunGeometri {
-    
-    // Kontrak wajib khusus bangun datar
     public abstract double hitungLuas();
-
-    @Override
-    public final double hitungLuasPermukaan() {
-        return hitungLuas(); // Luas permukaan bangun datar adalah luasnya sendiri
-    }
-
-    @Override
-    public final double hitungVolume() {
-        return 0.0; // Bangun datar secara matematis mustahil memiliki volume
-    }
+    public abstract double hitungKeliling();
 }
