@@ -232,7 +232,7 @@ public class MesinHitung extends JFrame {
         JPanel k = buatKartu("Hasil Generate & Perhitungan");
         k.setLayout(new BorderLayout());
 
-        String[] kolom = {"No", "Bangun Geometri", "Parameter", "Luas / LP (cm²)", "Volume (cm³)", "Thread"};
+        String[] kolom = {"No", "Nama Bangun", "Parameter", "Luas/LP", "Volume", "Keliling", "Thread"};
         modelTabel = new DefaultTableModel(kolom, 0) {
             @Override public boolean isCellEditable(int r, int c) { return false; }
         };
@@ -437,16 +437,17 @@ public class MesinHitung extends JFrame {
                 sorted.sort(Comparator.comparingInt(HasilHitung::getId));
                 
                 List<Object[]> batch = new ArrayList<>();
-                for (HasilHitung h : sorted) {
-                    batch.add(new Object[]{
-                        h.getId(), h.getNamaBangun(), h.getParameter(),
-                        DF.format( h.getLuasPermukaan()), DF.format(h.getVolume()), h.getThreadId()
-                    });
-                    if (batch.size() >= 500) {
-                        publish(new ArrayList<>(batch)); 
-                        batch.clear();
-                    }
-                }
+                for (HasilHitung h : semuaHasil) {
+                modelTabel.addRow(new Object[]{
+                    h.getId(),
+                    h.getNamaBangun(),
+                    h.getParameter(),
+                    DF.format(h.getLuasPermukaanOrLuas()),
+                    DF.format(h.getVolume()),
+                    DF.format(h.getKeliling()), // <-- Data keliling masuk ke baris tabel jirr!
+                    "Thread-" + h.getThreadId()
+                });
+}
                 if (!batch.isEmpty()) publish(batch);
                 return null;
             }
@@ -484,9 +485,9 @@ public class MesinHitung extends JFrame {
         long cBK = semuaHasil.stream().filter(h -> h.getNamaBangun().equals("Belah Ketupat")).count();
         long cPr = semuaHasil.stream().filter(h -> h.getNamaBangun().equals("Prisma Belah Ketupat")).count();
         long cLi = semuaHasil.stream().filter(h -> h.getNamaBangun().equals("Limas Belah Ketupat")).count();
-        double lpMin = semuaHasil.stream().mapToDouble(HasilHitung::getLuasPermukaan).min().orElse(0);
-        double lpMax = semuaHasil.stream().mapToDouble(HasilHitung::getLuasPermukaan).max().orElse(0);
-        double lpAvg = semuaHasil.stream().mapToDouble(HasilHitung::getLuasPermukaan).average().orElse(0);
+        double lpMin = semuaHasil.stream().mapToDouble(HasilHitung::getLuasPermukaanOrLuas).min().orElse(0);
+        double lpMax = semuaHasil.stream().mapToDouble(HasilHitung::getLuasPermukaanOrLuas).max().orElse(0);
+        double lpAvg = semuaHasil.stream().mapToDouble(HasilHitung::getLuasPermukaanOrLuas).average().orElse(0);
         double vMin  = semuaHasil.stream().filter(h -> h.getVolume() > 0).mapToDouble(HasilHitung::getVolume).min().orElse(0);
         double vMax  = semuaHasil.stream().mapToDouble(HasilHitung::getVolume).max().orElse(0);
         double vAvg  = semuaHasil.stream().mapToDouble(HasilHitung::getVolume).average().orElse(0);

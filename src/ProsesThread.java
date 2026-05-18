@@ -57,11 +57,19 @@ public class ProsesThread extends Thread {
                 }
             }
 
+            double kelilingObjek = 0.0;
+            if (bangun instanceof BangunDatar) {
+                kelilingObjek = ((BangunDatar) bangun).hitungKeliling();
+            }
+
+            // Masukkan variabel kelilingObjek ke dalam constructor HasilHitung (Urutan ke-6)
             hasilList.add(new HasilHitung(
                 globalOffset + i + 1,
                 bangun.getNamaBangun(),
                 bangun.getRingkasan(),
-                lp, v,
+                lp, 
+                v,
+                kelilingObjek, // <-- Masukkan data keliling di sini jirr!
                 threadId
             ));
 
