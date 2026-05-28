@@ -1,49 +1,77 @@
-/**
- * INHERITANCE + POLYMORPHISM
- * Limas dengan alas belah ketupat.
- */
-public class LimasBelahKetupat extends BangunRuang {
-    private final BelahKetupat alas; // Pilar Komposisi Objek
-    private final double       tinggi;
+import java.util.Random;
 
-    public LimasBelahKetupat(double diagonal1, double diagonal2, double tinggi) {
-        this.alas   = new BelahKetupat(diagonal1, diagonal2);
+public class LimasBelahKetupat extends BelahKetupat {
+    public double tinggi;
+    public double apotema1;
+    public double apotema2;
+    public double luasPermukaan;
+    public double volume;
+
+    public LimasBelahKetupat(int id, double d1, double d2, double tinggi, MesinHitung gui) {
+        super(id, d1, d2, gui);
         this.tinggi = tinggi;
     }
 
-    public double getTinggi(){ 
-        return tinggi; 
-    }
-    public BelahKetupat getAlas(){ 
-        return alas; 
+    public LimasBelahKetupat(int targetGenerate, MesinHitung gui) {
+        super(targetGenerate, gui);
     }
 
-    public double hitungApotema1(){
-        return Math.sqrt(Math.pow(tinggi, 2) + Math.pow(alas.getDiagonal2() / 2, 2));
+    @Override
+    public String getNamaBangun() {
+        return "Limas Belah Ketupat";
+    }
+
+    public double hitungApotema1() {
+        this.apotema1 = Math.sqrt(Math.pow(this.tinggi, 2) + Math.pow(this.d2 / 2, 2));
+        return this.apotema1;
     }
 
     public double hitungApotema2() {
-        return Math.sqrt(Math.pow(tinggi, 2) + Math.pow(alas.getDiagonal1() / 2, 2));
+        this.apotema2 = Math.sqrt(Math.pow(this.tinggi, 2) + Math.pow(this.d1 / 2, 2));
+        return this.apotema2;
     }
-
+    
     public double hitungLuasSelimut() {
-        return (alas.getDiagonal1() * hitungApotema2()) + (alas.getDiagonal2() * hitungApotema1());
+        return (this.d1 * hitungApotema2()) + (this.d2 * hitungApotema1());
     }
 
-    @Override
     public double hitungLuasPermukaan() {
-        return alas.hitungLuas() + hitungLuasSelimut();
+        this.luasPermukaan = this.luas + hitungLuasSelimut();
+        return this.luasPermukaan;
+    }
+
+    public double hitungVolume() {
+        this.volume = (1.0 / 3.0) * this.luas * this.tinggi;
+        return this.volume;
     }
 
     @Override
-    public double hitungVolume() {
-        return (1.0 / 3.0) * alas.hitungLuas() * tinggi;
+    public void hitungSemua() {
+        super.hitungSemua();
+        hitungApotema1();
+        hitungApotema2();
+        hitungLuasPermukaan();
+        hitungVolume();
     }
 
-    @Override public String getNamaBangun(){ 
-        return "Limas Belah Ketupat"; 
-    }
-    @Override public String getRingkasan(){ 
-        return String.format("d1=%.1f d2=%.1f t=%.1f", alas.getDiagonal1(), alas.getDiagonal2(), tinggi); 
+    @Override
+    public void run() {
+        if (targetGenerate > 0) {
+            Random r = new Random();
+
+            for (int i = 0; i < targetGenerate; i++) {
+                LimasBelahKetupat li = new LimasBelahKetupat(i + 1, 5 + r.nextDouble() * 95, 5 + r.nextDouble() * 95, 5 + r.nextDouble() * 95, getGui());
+                li.hitungSemua();
+                getGui().tambahHasil(li);
+
+                try {
+                    Thread.sleep(r.nextInt(3) + 1);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+            
+            getGui().laporThreadSelesai();
+        }
     }
 }

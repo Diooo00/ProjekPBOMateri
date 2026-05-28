@@ -1,41 +1,64 @@
-/**
- * ENCAPSULATION + INHERITANCE
- * Bangun dasar belah ketupat.
- */
-public class BelahKetupat extends BangunDatar {
-    private double diagonal1;
-    private double diagonal2;
+import java.util.Random;
 
-    public BelahKetupat(double diagonal1, double diagonal2) {
-        this.diagonal1 = diagonal1;
-        this.diagonal2 = diagonal2;
+public class BelahKetupat extends BangunGeometri {
+    protected double d1;
+    protected double d2;
+    protected double sisi;
+    protected double luas;
+    protected double keliling;
+
+    public BelahKetupat(int id, double d1, double d2, MesinHitung gui) {
+        super(id, "Belah Ketupat", gui);
+        this.d1 = d1;
+        this.d2 = d2;
     }
 
-    public double getDiagonal1() { 
-        return diagonal1; 
-    }
-    public double getDiagonal2() { 
-        return diagonal2; 
+    public BelahKetupat(int targetGenerate, MesinHitung gui) {
+        super("Belah Ketupat", targetGenerate, gui);
     }
 
     public double hitungSisi() {
-        return Math.sqrt(Math.pow(diagonal1 / 2, 2) + Math.pow(diagonal2 / 2, 2));
+        this.sisi = Math.sqrt(Math.pow(this.d1 / 2, 2) + Math.pow(this.d2 / 2, 2));
+        return this.sisi;
     }
-    
-    @Override
+
     public double hitungLuas() {
-        return (diagonal1 * diagonal2) / 2;
+        this.luas = (this.d1 * this.d2) / 2.0;
+        return this.luas;
+    }
+
+    public double hitungKeliling() {
+        this.keliling = 4 * hitungSisi();
+        return this.keliling;
     }
 
     @Override
-    public double hitungKeliling() {
-        return 4 * hitungSisi(); // <-- Implementasi perhitungan keliling
+    public void hitungSemua() {
+        hitungSisi();
+        hitungLuas();
+        hitungKeliling();
     }
 
-    @Override public String getNamaBangun() {
-        return "Belah Ketupat"; 
-    }
-    @Override public String getRingkasan()  { 
-        return String.format("d1=%.1f d2=%.1f", diagonal1, diagonal2); 
+    @Override
+    public void run() {
+        if (targetGenerate > 0) {
+            Random r = new Random();
+
+            for (int i = 0; i < targetGenerate; i++) {
+                BelahKetupat bk = new BelahKetupat(i + 1, 5 + r.nextDouble() * 95, 5 + r.nextDouble() * 95, getGui());
+                bk.hitungSemua();
+                getGui().tambahHasil(bk);
+
+                try {
+                    // Jeda acak tetap ada agar progress tidak instan
+                    Thread.sleep(r.nextInt(3) + 1);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+            
+            // Lapor jika Thread ini sudah menyelesaikan seluruh kuotanya
+            getGui().laporThreadSelesai();
+        }
     }
 }
