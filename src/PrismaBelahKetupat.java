@@ -19,21 +19,43 @@ public class PrismaBelahKetupat extends BelahKetupat {
         return "Prisma Belah Ketupat";
     }
 
-    public double hitungLuasPermukaan() {
-        this.luasPermukaan = (2 * this.luas) + (this.keliling * this.tinggi);
-        return this.luasPermukaan;
+    // --- OVERLOADING LUAS PERMUKAAN ---
+    public double hitungLuasPermukaan(double luasAlas, double kelilingAlas, double t) throws IllegalArgumentException {
+        if (luasAlas <= 0 || kelilingAlas <= 0 || t <= 0) {
+            throw new IllegalArgumentException("Error: Luas, Keliling, atau Tinggi Prisma tidak boleh 0!");
+        }
+        this.luasPermukaan = (2 * luasAlas) + (kelilingAlas * t);
+        return this.luasPermukaan; // Murni return atribut
     }
 
-    public double hitungVolume() {
-        this.volume = this.luas * this.tinggi;
-        return this.volume;
+    public double hitungLuasPermukaan() throws IllegalArgumentException {
+        hitungLuasPermukaan(super.luas, super.keliling, this.tinggi);
+        return this.luasPermukaan; // Murni return atribut
+    }
+
+    // --- OVERLOADING VOLUME ---
+    public double hitungVolume(double luasAlas, double t) throws IllegalArgumentException {
+        if (luasAlas <= 0 || t <= 0) {
+            throw new IllegalArgumentException("Error: Luas alas atau Tinggi tidak valid!");
+        }
+        this.volume = luasAlas * t;
+        return this.volume; // Murni return atribut
+    }
+
+    public double hitungVolume() throws IllegalArgumentException {
+        hitungVolume(super.luas, this.tinggi);
+        return this.volume; // Murni return atribut
     }
 
     @Override
     public void hitungSemua() {
-        super.hitungSemua();
-        hitungLuasPermukaan();
-        hitungVolume();
+        super.hitungSemua(); 
+        try {
+            hitungLuasPermukaan();
+            hitungVolume();
+        } catch (IllegalArgumentException e) {
+            System.err.println("Gagal menghitung Prisma: " + e.getMessage());
+        }
     }
 
     @Override

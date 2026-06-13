@@ -1,6 +1,7 @@
 import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.table.*;
+import javax.swing.text.*; // Tambahan import untuk DocumentFilter
 import java.awt.*;
 import java.text.DecimalFormat;
 import java.util.*;
@@ -136,6 +137,28 @@ public class MesinHitung extends JFrame {
         txtJumlahData.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         txtJumlahData.setPreferredSize(new Dimension(120, 26)); 
         
+        // --- PENGAMAN 1: BLOKIR FISIK INPUT MINUS DAN HURUF ---
+        ((AbstractDocument) txtJumlahData.getDocument()).setDocumentFilter(new DocumentFilter() {
+            @Override
+            public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs) throws BadLocationException {
+                // Regex \d* memastikan hanya angka (0-9) yang bisa masuk
+                if (text != null && text.matches("\\d*")) { 
+                    super.replace(fb, offset, length, text, attrs);
+                } else {
+                    Toolkit.getDefaultToolkit().beep(); // Bunyi 'beep' kalau user maksa ngetik huruf/minus
+                }
+            }
+            @Override
+            public void insertString(FilterBypass fb, int offset, String string, AttributeSet attr) throws BadLocationException {
+                if (string != null && string.matches("\\d*")) {
+                    super.insertString(fb, offset, string, attr);
+                } else {
+                    Toolkit.getDefaultToolkit().beep();
+                }
+            }
+        });
+        // --------------------------------------------------------
+
         JPanel wrapInput = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
         wrapInput.setOpaque(false);
         wrapInput.add(txtJumlahData);
@@ -327,21 +350,19 @@ public class MesinHitung extends JFrame {
         }
     }
 
-    // --- KUNCI PROGRESS BAR INDIVIDU BIAR PENDEK KE KIRI & GAK MELAR ---
     private void tambahProgressUI(String nama, Color warna, int maxData, int index) {
         JLabel lbl = new JLabel(String.format("Thread %d: %s — bersiap...", index, nama));
         lbl.setFont(new Font("Segoe UI", Font.PLAIN, 10)); 
         lbl.setForeground(warna);
-        lbl.setAlignmentX(Component.LEFT_ALIGNMENT); // Rata kiri mutlak
+        lbl.setAlignmentX(Component.LEFT_ALIGNMENT); 
         
         JProgressBar pb = new JProgressBar(0, maxData);
         pb.setStringPainted(true);
         pb.setForeground(warna);
         
-        // Kunci lebar jadi 180 pixel, tinggi 16 pixel (lebih ringkas & pendek)
         pb.setPreferredSize(new Dimension(180, 16)); 
         pb.setMaximumSize(new Dimension(180, 16));   
-        pb.setAlignmentX(Component.LEFT_ALIGNMENT);  // Rata kiri mutlak
+        pb.setAlignmentX(Component.LEFT_ALIGNMENT);  
         
         JPanel row = new JPanel();
         row.setLayout(new BoxLayout(row, BoxLayout.Y_AXIS));
@@ -352,7 +373,6 @@ public class MesinHitung extends JFrame {
         row.add(Box.createVerticalStrut(2));
         row.add(pb);
         
-        // Bungkus lagi pakai panel FlowLayout rata kiri biar benar-benar paten di pojok kiri
         JPanel wrapRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
         wrapRow.setBackground(C_KARTU);
         wrapRow.add(row);
@@ -382,10 +402,18 @@ public class MesinHitung extends JFrame {
         int jatahPerThread = 0;
         try {
             int inputTotal = Integer.parseInt(txtJumlahData.getText().trim());
+            
+            // --- PENGAMAN 2: BLOKIR LOGIKAL UNTUK NILAI 0 ATAU KOSONG ---
+            if (inputTotal <= 0) {
+                logStatus("Validasi Gagal: Kuota data harus lebih besar dari 0!"); 
+                Toolkit.getDefaultToolkit().beep();
+                return;
+            }
+            
             jatahPerThread = inputTotal / terpilih;
             totalDataTarget = jatahPerThread * terpilih; 
         } catch (Exception e) {
-            logStatus("Validasi Gagal: Jumlah data tidak valid!"); 
+            logStatus("Validasi Gagal: Masukkan angka yang valid!"); 
             return;
         }
 

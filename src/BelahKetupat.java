@@ -17,26 +17,57 @@ public class BelahKetupat extends BangunGeometri {
         super("Belah Ketupat", targetGenerate, gui);
     }
 
-    public double hitungSisi() {
-        this.sisi = Math.sqrt(Math.pow(this.d1 / 2, 2) + Math.pow(this.d2 / 2, 2));
-        return this.sisi;
+    // --- OVERLOADING SISI ---
+    public double hitungSisi(double diagonal1, double diagonal2) throws IllegalArgumentException {
+        if (diagonal1 <= 0 || diagonal2 <= 0) {
+            throw new IllegalArgumentException("Error: Diagonal tidak boleh kurang dari atau sama dengan 0!");
+        }
+        this.sisi = Math.sqrt(Math.pow(diagonal1 / 2, 2) + Math.pow(diagonal2 / 2, 2));
+        return this.sisi; // Murni return atribut
     }
 
-    public double hitungLuas() {
-        this.luas = (this.d1 * this.d2) / 2.0;
-        return this.luas;
+    public double hitungSisi() throws IllegalArgumentException {
+        hitungSisi(this.d1, this.d2); 
+        return this.sisi; // Murni return atribut
     }
 
-    public double hitungKeliling() {
-        this.keliling = 4 * hitungSisi();
-        return this.keliling;
+    // --- OVERLOADING LUAS ---
+    public double hitungLuas(double diagonal1, double diagonal2) throws IllegalArgumentException {
+        if (diagonal1 <= 0 || diagonal2 <= 0) {
+            throw new IllegalArgumentException("Error: Diagonal tidak boleh kurang dari atau sama dengan 0!");
+        }
+        this.luas = (diagonal1 * diagonal2) / 2.0;
+        return this.luas; // Murni return atribut
+    }
+
+    public double hitungLuas() throws IllegalArgumentException {
+        hitungLuas(this.d1, this.d2);
+        return this.luas; // Murni return atribut
+    }
+
+    // --- OVERLOADING KELILING ---
+    public double hitungKeliling(double nilaiSisi) throws IllegalArgumentException {
+        if (nilaiSisi <= 0) {
+            throw new IllegalArgumentException("Error: Sisi tidak valid!");
+        }
+        this.keliling = 4 * nilaiSisi;
+        return this.keliling; // Murni return atribut
+    }
+
+    public double hitungKeliling() throws IllegalArgumentException {
+        hitungKeliling(this.sisi);
+        return this.keliling; // Murni return atribut
     }
 
     @Override
     public void hitungSemua() {
-        hitungSisi();
-        hitungLuas();
-        hitungKeliling();
+        try {
+            hitungSisi();
+            hitungLuas();
+            hitungKeliling();
+        } catch (IllegalArgumentException e) {
+            System.err.println("Gagal menghitung Belah Ketupat: " + e.getMessage());
+        }
     }
 
     @Override
@@ -50,14 +81,12 @@ public class BelahKetupat extends BangunGeometri {
                 getGui().tambahHasil(bk);
 
                 try {
-                    // Jeda acak tetap ada agar progress tidak instan
                     Thread.sleep(r.nextInt(3) + 1);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
             }
             
-            // Lapor jika Thread ini sudah menyelesaikan seluruh kuotanya
             getGui().laporThreadSelesai();
         }
     }
