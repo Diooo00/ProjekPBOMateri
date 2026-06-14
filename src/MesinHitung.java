@@ -621,17 +621,21 @@ public class MesinHitung extends JFrame {
                     double kel = 0;
                     String param = "";
 
-                    if (b instanceof PrismaBelahKetupat) {
+                    String namaBangun = b.getNamaBangun();
+
+                    if (namaBangun.equals("Prisma Belah Ketupat")) {
                         PrismaBelahKetupat pr = (PrismaBelahKetupat) b;
                         lp = pr.hitungLuasPermukaan();
                         vol = pr.hitungVolume();
                         param = String.format("d1=%.1f d2=%.1f t=%.1f", pr.d1, pr.d2, pr.tinggi);
-                    } else if (b instanceof LimasBelahKetupat) {
+
+                    } else if (namaBangun.equals("Limas Belah Ketupat")) {
                         LimasBelahKetupat li = (LimasBelahKetupat) b;
                         lp = li.hitungLuasPermukaan();
                         vol = li.hitungVolume();
                         param = String.format("d1=%.1f d2=%.1f t=%.1f", li.d1, li.d2, li.tinggi);
-                    } else if (b instanceof BelahKetupat) {
+
+                    } else {
                         BelahKetupat bk = (BelahKetupat) b;
                         lp = bk.hitungLuas();
                         kel = bk.hitungKeliling();
@@ -722,13 +726,15 @@ public class MesinHitung extends JFrame {
                 double vol = 0;   // default: Belah Ketupat tidak punya volume
                 String param = String.format("d1=%.2f d2=%.2f", d1, d2);
 
-                if (bangun instanceof PrismaBelahKetupat) {
+                String namaBangun = bangun.getNamaBangun();
+
+                if (namaBangun.equals("Prisma Belah Ketupat")) {
                     PrismaBelahKetupat pr = (PrismaBelahKetupat) bangun;
                     lp  = pr.hitungLuasPermukaan(pr.luas, pr.keliling, tinggi);
                     vol = pr.hitungVolume(pr.luas, tinggi);
                     param = String.format("d1=%.2f d2=%.2f t=%.2f", d1, d2, tinggi);
 
-                } else if (bangun instanceof LimasBelahKetupat) {
+                } else if (namaBangun.equals("Limas Belah Ketupat")) {
                     LimasBelahKetupat li = (LimasBelahKetupat) bangun;
                     double a1 = li.hitungApotema1(tinggi, d2);
                     double a2 = li.hitungApotema2(tinggi, d1);
@@ -745,7 +751,7 @@ public class MesinHitung extends JFrame {
                 semuaHasil.add(bangun);
 
             } catch (IllegalArgumentException e) {
-                // exception dari method hitung...() ditangkap di sini
+                // exception dari method hitung...()
                 modelTabel.addRow(new Object[]{
                     bangun.getIdBangun(), bangun.getNamaBangun(),
                     "Gagal hitung", e.getMessage(), "-", "-"
@@ -765,15 +771,15 @@ public class MesinHitung extends JFrame {
         }
 
         long cBK = semuaHasil.stream()
-            .filter(h -> h instanceof BelahKetupat && !(h instanceof PrismaBelahKetupat) && !(h instanceof LimasBelahKetupat))
+            .filter(h -> h.getNamaBangun().equals("Belah Ketupat"))
             .count();
 
         long cPr = semuaHasil.stream()
-            .filter(h -> h instanceof PrismaBelahKetupat)
+            .filter(h -> h.getNamaBangun().equals("Prisma Belah Ketupat"))
             .count();
 
         long cLi = semuaHasil.stream()
-            .filter(h -> h instanceof LimasBelahKetupat)
+            .filter(h -> h.getNamaBangun().equals("Limas Belah Ketupat"))
             .count();
 
         double lpMin = semuaHasil.stream().mapToDouble(this::getLpOrLuas).min().orElse(0);
@@ -781,15 +787,15 @@ public class MesinHitung extends JFrame {
         double lpAvg = semuaHasil.stream().mapToDouble(this::getLpOrLuas).average().orElse(0);
 
         double vMin = semuaHasil.stream()
-            .filter(b -> b instanceof PrismaBelahKetupat || b instanceof LimasBelahKetupat)
+            .filter(b -> b.getNamaBangun().equals("Prisma Belah Ketupat") || b.getNamaBangun().equals("Limas Belah Ketupat"))
             .mapToDouble(this::getVol).min().orElse(0);
 
         double vMax = semuaHasil.stream()
-            .filter(b -> b instanceof PrismaBelahKetupat || b instanceof LimasBelahKetupat)
+            .filter(b -> b.getNamaBangun().equals("Prisma Belah Ketupat") || b.getNamaBangun().equals("Limas Belah Ketupat"))
             .mapToDouble(this::getVol).max().orElse(0);
 
         double vAvg = semuaHasil.stream()
-            .filter(b -> b instanceof PrismaBelahKetupat || b instanceof LimasBelahKetupat)
+            .filter(b -> b.getNamaBangun().equals("Prisma Belah Ketupat") || b.getNamaBangun().equals("Limas Belah Ketupat"))
             .mapToDouble(this::getVol).average().orElse(0);
 
         lblStatBK.setText("BK         : " + cBK);
@@ -804,20 +810,22 @@ public class MesinHitung extends JFrame {
     }
 
     private double getLpOrLuas(BangunGeometri b) {
-        if (b instanceof PrismaBelahKetupat) {
+        String namaBangun = b.getNamaBangun();
+        if (namaBangun.equals("Prisma Belah Ketupat")) {
             return ((PrismaBelahKetupat) b).hitungLuasPermukaan();
         }
-        if (b instanceof LimasBelahKetupat) {
+        if (namaBangun.equals("Limas Belah Ketupat")) {
             return ((LimasBelahKetupat) b).hitungLuasPermukaan();
         }
         return ((BelahKetupat) b).hitungLuas();
     }
 
     private double getVol(BangunGeometri b) {
-        if (b instanceof PrismaBelahKetupat) {
+        String namaBangun = b.getNamaBangun();
+        if (namaBangun.equals("Prisma Belah Ketupat")) {
             return ((PrismaBelahKetupat) b).hitungVolume();
         }
-        if (b instanceof LimasBelahKetupat) {
+        if (namaBangun.equals("Limas Belah Ketupat")) {
             return ((LimasBelahKetupat) b).hitungVolume();
         }
         return 0;
