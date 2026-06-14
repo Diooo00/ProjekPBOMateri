@@ -1,5 +1,6 @@
 import java.util.List;
 
+
 public abstract class BangunGeometri extends Thread {
     protected int targetGenerate = 0;
     protected List<BangunGeometri> peerThreads;

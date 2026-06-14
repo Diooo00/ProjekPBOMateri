@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class MesinHitung extends JFrame {
-
     private JCheckBox cbBelahKetupat;
     private JCheckBox cbPrisma;
     private JCheckBox cbLimas;
